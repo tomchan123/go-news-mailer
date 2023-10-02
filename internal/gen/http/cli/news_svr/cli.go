@@ -4,7 +4,7 @@
 //
 // Command:
 // $ goa gen github.com/tomchan123/go-news-mailer/internal/design --output
-// ./internal/gen
+// ./internal
 
 package cli
 
@@ -14,7 +14,7 @@ import (
 	"net/http"
 	"os"
 
-	subscriptionc "github.com/tomchan123/go-news-mailer/internal/gen/gen/http/subscription/client"
+	subscriptionc "github.com/tomchan123/go-news-mailer/internal/gen/http/subscription/client"
 	goahttp "goa.design/goa/v3/http"
 	goa "goa.design/goa/v3/pkg"
 )

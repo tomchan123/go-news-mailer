@@ -4,12 +4,12 @@
 //
 // Command:
 // $ goa gen github.com/tomchan123/go-news-mailer/internal/design --output
-// ./internal/gen
+// ./internal
 
 package client
 
 import (
-	subscription "github.com/tomchan123/go-news-mailer/internal/gen/gen/subscription"
+	subscription "github.com/tomchan123/go-news-mailer/internal/gen/subscription"
 	goa "goa.design/goa/v3/pkg"
 )
 

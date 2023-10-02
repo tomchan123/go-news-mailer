@@ -4,9 +4,9 @@
 //
 // Command:
 // $ goa gen github.com/tomchan123/go-news-mailer/internal/design --output
-// ./internal/gen
+// ./internal
 
-package client
+package server
 
 import (
 	"fmt"
