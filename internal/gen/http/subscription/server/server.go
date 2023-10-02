@@ -53,10 +53,10 @@ func New(
 ) *Server {
 	return &Server{
 		Mounts: []*MountPoint{
-			{"GetAll", "GET", "/subscription"},
-			{"GetOneByUID", "GET", "/subscription/{uid}"},
-			{"DeleteOneByUID", "DELETE", "/subscription/{uid}"},
-			{"CreateOne", "POST", "/subscription"},
+			{"GetAll", "GET", "/api/subscriptions"},
+			{"GetOneByUID", "GET", "/api/subscriptions/{uid}"},
+			{"DeleteOneByUID", "DELETE", "/api/subscriptions/{uid}"},
+			{"CreateOne", "POST", "/api/subscriptions"},
 		},
 		GetAll:         NewGetAllHandler(e.GetAll, mux, decoder, encoder, errhandler, formatter),
 		GetOneByUID:    NewGetOneByUIDHandler(e.GetOneByUID, mux, decoder, encoder, errhandler, formatter),
@@ -101,7 +101,7 @@ func MountGetAllHandler(mux goahttp.Muxer, h http.Handler) {
 			h.ServeHTTP(w, r)
 		}
 	}
-	mux.Handle("GET", "/subscription", f)
+	mux.Handle("GET", "/api/subscriptions", f)
 }
 
 // NewGetAllHandler creates a HTTP handler which loads the HTTP request and
@@ -116,7 +116,7 @@ func NewGetAllHandler(
 ) http.Handler {
 	var (
 		encodeResponse = EncodeGetAllResponse(encoder)
-		encodeError    = goahttp.ErrorEncoder(encoder, formatter)
+		encodeError    = EncodeGetAllError(encoder, formatter)
 	)
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		ctx := context.WithValue(r.Context(), goahttp.AcceptTypeKey, r.Header.Get("Accept"))
@@ -145,7 +145,7 @@ func MountGetOneByUIDHandler(mux goahttp.Muxer, h http.Handler) {
 			h.ServeHTTP(w, r)
 		}
 	}
-	mux.Handle("GET", "/subscription/{uid}", f)
+	mux.Handle("GET", "/api/subscriptions/{uid}", f)
 }
 
 // NewGetOneByUIDHandler creates a HTTP handler which loads the HTTP request
@@ -196,7 +196,7 @@ func MountDeleteOneByUIDHandler(mux goahttp.Muxer, h http.Handler) {
 			h.ServeHTTP(w, r)
 		}
 	}
-	mux.Handle("DELETE", "/subscription/{uid}", f)
+	mux.Handle("DELETE", "/api/subscriptions/{uid}", f)
 }
 
 // NewDeleteOneByUIDHandler creates a HTTP handler which loads the HTTP request
@@ -247,7 +247,7 @@ func MountCreateOneHandler(mux goahttp.Muxer, h http.Handler) {
 			h.ServeHTTP(w, r)
 		}
 	}
-	mux.Handle("POST", "/subscription", f)
+	mux.Handle("POST", "/api/subscriptions", f)
 }
 
 // NewCreateOneHandler creates a HTTP handler which loads the HTTP request and

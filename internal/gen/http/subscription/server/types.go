@@ -56,6 +56,24 @@ type CreateOneResponseBody struct {
 	Since *string `form:"since,omitempty" json:"since,omitempty" xml:"since,omitempty"`
 }
 
+// GetAllServerErrorResponseBody is the type of the "subscription" service
+// "getAll" endpoint HTTP response body for the "ServerError" error.
+type GetAllServerErrorResponseBody struct {
+	// Name is the name of this class of errors.
+	Name string `form:"name" json:"name" xml:"name"`
+	// ID is a unique identifier for this particular occurrence of the problem.
+	ID string `form:"id" json:"id" xml:"id"`
+	// Message is a human-readable explanation specific to this occurrence of the
+	// problem.
+	Message string `form:"message" json:"message" xml:"message"`
+	// Is the error temporary?
+	Temporary bool `form:"temporary" json:"temporary" xml:"temporary"`
+	// Is the error a timeout?
+	Timeout bool `form:"timeout" json:"timeout" xml:"timeout"`
+	// Is the error a server-side fault?
+	Fault bool `form:"fault" json:"fault" xml:"fault"`
+}
+
 // GetOneByUIDSubscriptionNotFoundResponseBody is the type of the
 // "subscription" service "getOneByUID" endpoint HTTP response body for the
 // "SubscriptionNotFound" error.
@@ -75,10 +93,47 @@ type GetOneByUIDSubscriptionNotFoundResponseBody struct {
 	Fault bool `form:"fault" json:"fault" xml:"fault"`
 }
 
+// GetOneByUIDServerErrorResponseBody is the type of the "subscription" service
+// "getOneByUID" endpoint HTTP response body for the "ServerError" error.
+type GetOneByUIDServerErrorResponseBody struct {
+	// Name is the name of this class of errors.
+	Name string `form:"name" json:"name" xml:"name"`
+	// ID is a unique identifier for this particular occurrence of the problem.
+	ID string `form:"id" json:"id" xml:"id"`
+	// Message is a human-readable explanation specific to this occurrence of the
+	// problem.
+	Message string `form:"message" json:"message" xml:"message"`
+	// Is the error temporary?
+	Temporary bool `form:"temporary" json:"temporary" xml:"temporary"`
+	// Is the error a timeout?
+	Timeout bool `form:"timeout" json:"timeout" xml:"timeout"`
+	// Is the error a server-side fault?
+	Fault bool `form:"fault" json:"fault" xml:"fault"`
+}
+
 // DeleteOneByUIDSubscriptionNotFoundResponseBody is the type of the
 // "subscription" service "deleteOneByUID" endpoint HTTP response body for the
 // "SubscriptionNotFound" error.
 type DeleteOneByUIDSubscriptionNotFoundResponseBody struct {
+	// Name is the name of this class of errors.
+	Name string `form:"name" json:"name" xml:"name"`
+	// ID is a unique identifier for this particular occurrence of the problem.
+	ID string `form:"id" json:"id" xml:"id"`
+	// Message is a human-readable explanation specific to this occurrence of the
+	// problem.
+	Message string `form:"message" json:"message" xml:"message"`
+	// Is the error temporary?
+	Temporary bool `form:"temporary" json:"temporary" xml:"temporary"`
+	// Is the error a timeout?
+	Timeout bool `form:"timeout" json:"timeout" xml:"timeout"`
+	// Is the error a server-side fault?
+	Fault bool `form:"fault" json:"fault" xml:"fault"`
+}
+
+// DeleteOneByUIDServerErrorResponseBody is the type of the "subscription"
+// service "deleteOneByUID" endpoint HTTP response body for the "ServerError"
+// error.
+type DeleteOneByUIDServerErrorResponseBody struct {
 	// Name is the name of this class of errors.
 	Name string `form:"name" json:"name" xml:"name"`
 	// ID is a unique identifier for this particular occurrence of the problem.
@@ -117,6 +172,24 @@ type CreateOneSubscriptionFieldMissingResponseBody struct {
 // "subscription" service "createOne" endpoint HTTP response body for the
 // "SubscriptionAlreadyExists" error.
 type CreateOneSubscriptionAlreadyExistsResponseBody struct {
+	// Name is the name of this class of errors.
+	Name string `form:"name" json:"name" xml:"name"`
+	// ID is a unique identifier for this particular occurrence of the problem.
+	ID string `form:"id" json:"id" xml:"id"`
+	// Message is a human-readable explanation specific to this occurrence of the
+	// problem.
+	Message string `form:"message" json:"message" xml:"message"`
+	// Is the error temporary?
+	Temporary bool `form:"temporary" json:"temporary" xml:"temporary"`
+	// Is the error a timeout?
+	Timeout bool `form:"timeout" json:"timeout" xml:"timeout"`
+	// Is the error a server-side fault?
+	Fault bool `form:"fault" json:"fault" xml:"fault"`
+}
+
+// CreateOneServerErrorResponseBody is the type of the "subscription" service
+// "createOne" endpoint HTTP response body for the "ServerError" error.
+type CreateOneServerErrorResponseBody struct {
 	// Name is the name of this class of errors.
 	Name string `form:"name" json:"name" xml:"name"`
 	// ID is a unique identifier for this particular occurrence of the problem.
@@ -178,10 +251,38 @@ func NewCreateOneResponseBody(res *subscription.Subscription) *CreateOneResponse
 	return body
 }
 
+// NewGetAllServerErrorResponseBody builds the HTTP response body from the
+// result of the "getAll" endpoint of the "subscription" service.
+func NewGetAllServerErrorResponseBody(res *goa.ServiceError) *GetAllServerErrorResponseBody {
+	body := &GetAllServerErrorResponseBody{
+		Name:      res.Name,
+		ID:        res.ID,
+		Message:   res.Message,
+		Temporary: res.Temporary,
+		Timeout:   res.Timeout,
+		Fault:     res.Fault,
+	}
+	return body
+}
+
 // NewGetOneByUIDSubscriptionNotFoundResponseBody builds the HTTP response body
 // from the result of the "getOneByUID" endpoint of the "subscription" service.
 func NewGetOneByUIDSubscriptionNotFoundResponseBody(res *goa.ServiceError) *GetOneByUIDSubscriptionNotFoundResponseBody {
 	body := &GetOneByUIDSubscriptionNotFoundResponseBody{
+		Name:      res.Name,
+		ID:        res.ID,
+		Message:   res.Message,
+		Temporary: res.Temporary,
+		Timeout:   res.Timeout,
+		Fault:     res.Fault,
+	}
+	return body
+}
+
+// NewGetOneByUIDServerErrorResponseBody builds the HTTP response body from the
+// result of the "getOneByUID" endpoint of the "subscription" service.
+func NewGetOneByUIDServerErrorResponseBody(res *goa.ServiceError) *GetOneByUIDServerErrorResponseBody {
+	body := &GetOneByUIDServerErrorResponseBody{
 		Name:      res.Name,
 		ID:        res.ID,
 		Message:   res.Message,
@@ -197,6 +298,20 @@ func NewGetOneByUIDSubscriptionNotFoundResponseBody(res *goa.ServiceError) *GetO
 // service.
 func NewDeleteOneByUIDSubscriptionNotFoundResponseBody(res *goa.ServiceError) *DeleteOneByUIDSubscriptionNotFoundResponseBody {
 	body := &DeleteOneByUIDSubscriptionNotFoundResponseBody{
+		Name:      res.Name,
+		ID:        res.ID,
+		Message:   res.Message,
+		Temporary: res.Temporary,
+		Timeout:   res.Timeout,
+		Fault:     res.Fault,
+	}
+	return body
+}
+
+// NewDeleteOneByUIDServerErrorResponseBody builds the HTTP response body from
+// the result of the "deleteOneByUID" endpoint of the "subscription" service.
+func NewDeleteOneByUIDServerErrorResponseBody(res *goa.ServiceError) *DeleteOneByUIDServerErrorResponseBody {
+	body := &DeleteOneByUIDServerErrorResponseBody{
 		Name:      res.Name,
 		ID:        res.ID,
 		Message:   res.Message,
@@ -227,6 +342,20 @@ func NewCreateOneSubscriptionFieldMissingResponseBody(res *goa.ServiceError) *Cr
 // service.
 func NewCreateOneSubscriptionAlreadyExistsResponseBody(res *goa.ServiceError) *CreateOneSubscriptionAlreadyExistsResponseBody {
 	body := &CreateOneSubscriptionAlreadyExistsResponseBody{
+		Name:      res.Name,
+		ID:        res.ID,
+		Message:   res.Message,
+		Temporary: res.Temporary,
+		Timeout:   res.Timeout,
+		Fault:     res.Fault,
+	}
+	return body
+}
+
+// NewCreateOneServerErrorResponseBody builds the HTTP response body from the
+// result of the "createOne" endpoint of the "subscription" service.
+func NewCreateOneServerErrorResponseBody(res *goa.ServiceError) *CreateOneServerErrorResponseBody {
+	body := &CreateOneServerErrorResponseBody{
 		Name:      res.Name,
 		ID:        res.ID,
 		Message:   res.Message,

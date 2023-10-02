@@ -37,6 +37,9 @@ func (c *Client) BuildGetAllRequest(ctx context.Context, v any) (*http.Request, 
 // DecodeGetAllResponse returns a decoder for responses returned by the
 // subscription getAll endpoint. restoreBody controls whether the response body
 // should be restored after having been read.
+// DecodeGetAllResponse may return the following errors:
+//   - "ServerError" (type *goa.ServiceError): http.StatusInternalServerError
+//   - error: internal error
 func DecodeGetAllResponse(decoder func(*http.Response) goahttp.Decoder, restoreBody bool) func(*http.Response) (any, error) {
 	return func(resp *http.Response) (any, error) {
 		if restoreBody {
@@ -63,6 +66,20 @@ func DecodeGetAllResponse(decoder func(*http.Response) goahttp.Decoder, restoreB
 			}
 			res := NewGetAllSubscriptionOK(body)
 			return res, nil
+		case http.StatusInternalServerError:
+			var (
+				body GetAllServerErrorResponseBody
+				err  error
+			)
+			err = decoder(resp).Decode(&body)
+			if err != nil {
+				return nil, goahttp.ErrDecodingError("subscription", "getAll", err)
+			}
+			err = ValidateGetAllServerErrorResponseBody(&body)
+			if err != nil {
+				return nil, goahttp.ErrValidationError("subscription", "getAll", err)
+			}
+			return nil, NewGetAllServerError(&body)
 		default:
 			body, _ := io.ReadAll(resp.Body)
 			return nil, goahttp.ErrInvalidResponse("subscription", "getAll", resp.StatusCode, string(body))
@@ -100,6 +117,7 @@ func (c *Client) BuildGetOneByUIDRequest(ctx context.Context, v any) (*http.Requ
 // body should be restored after having been read.
 // DecodeGetOneByUIDResponse may return the following errors:
 //   - "SubscriptionNotFound" (type *goa.ServiceError): http.StatusNotFound
+//   - "ServerError" (type *goa.ServiceError): http.StatusInternalServerError
 //   - error: internal error
 func DecodeGetOneByUIDResponse(decoder func(*http.Response) goahttp.Decoder, restoreBody bool) func(*http.Response) (any, error) {
 	return func(resp *http.Response) (any, error) {
@@ -141,6 +159,20 @@ func DecodeGetOneByUIDResponse(decoder func(*http.Response) goahttp.Decoder, res
 				return nil, goahttp.ErrValidationError("subscription", "getOneByUID", err)
 			}
 			return nil, NewGetOneByUIDSubscriptionNotFound(&body)
+		case http.StatusInternalServerError:
+			var (
+				body GetOneByUIDServerErrorResponseBody
+				err  error
+			)
+			err = decoder(resp).Decode(&body)
+			if err != nil {
+				return nil, goahttp.ErrDecodingError("subscription", "getOneByUID", err)
+			}
+			err = ValidateGetOneByUIDServerErrorResponseBody(&body)
+			if err != nil {
+				return nil, goahttp.ErrValidationError("subscription", "getOneByUID", err)
+			}
+			return nil, NewGetOneByUIDServerError(&body)
 		default:
 			body, _ := io.ReadAll(resp.Body)
 			return nil, goahttp.ErrInvalidResponse("subscription", "getOneByUID", resp.StatusCode, string(body))
@@ -178,6 +210,7 @@ func (c *Client) BuildDeleteOneByUIDRequest(ctx context.Context, v any) (*http.R
 // response body should be restored after having been read.
 // DecodeDeleteOneByUIDResponse may return the following errors:
 //   - "SubscriptionNotFound" (type *goa.ServiceError): http.StatusNotFound
+//   - "ServerError" (type *goa.ServiceError): http.StatusInternalServerError
 //   - error: internal error
 func DecodeDeleteOneByUIDResponse(decoder func(*http.Response) goahttp.Decoder, restoreBody bool) func(*http.Response) (any, error) {
 	return func(resp *http.Response) (any, error) {
@@ -210,6 +243,20 @@ func DecodeDeleteOneByUIDResponse(decoder func(*http.Response) goahttp.Decoder, 
 				return nil, goahttp.ErrValidationError("subscription", "deleteOneByUID", err)
 			}
 			return nil, NewDeleteOneByUIDSubscriptionNotFound(&body)
+		case http.StatusInternalServerError:
+			var (
+				body DeleteOneByUIDServerErrorResponseBody
+				err  error
+			)
+			err = decoder(resp).Decode(&body)
+			if err != nil {
+				return nil, goahttp.ErrDecodingError("subscription", "deleteOneByUID", err)
+			}
+			err = ValidateDeleteOneByUIDServerErrorResponseBody(&body)
+			if err != nil {
+				return nil, goahttp.ErrValidationError("subscription", "deleteOneByUID", err)
+			}
+			return nil, NewDeleteOneByUIDServerError(&body)
 		default:
 			body, _ := io.ReadAll(resp.Body)
 			return nil, goahttp.ErrInvalidResponse("subscription", "deleteOneByUID", resp.StatusCode, string(body))
@@ -254,6 +301,7 @@ func EncodeCreateOneRequest(encoder func(*http.Request) goahttp.Encoder) func(*h
 // DecodeCreateOneResponse may return the following errors:
 //   - "SubscriptionFieldMissing" (type *goa.ServiceError): http.StatusBadRequest
 //   - "SubscriptionAlreadyExists" (type *goa.ServiceError): http.StatusConflict
+//   - "ServerError" (type *goa.ServiceError): http.StatusInternalServerError
 //   - error: internal error
 func DecodeCreateOneResponse(decoder func(*http.Response) goahttp.Decoder, restoreBody bool) func(*http.Response) (any, error) {
 	return func(resp *http.Response) (any, error) {
@@ -309,6 +357,20 @@ func DecodeCreateOneResponse(decoder func(*http.Response) goahttp.Decoder, resto
 				return nil, goahttp.ErrValidationError("subscription", "createOne", err)
 			}
 			return nil, NewCreateOneSubscriptionAlreadyExists(&body)
+		case http.StatusInternalServerError:
+			var (
+				body CreateOneServerErrorResponseBody
+				err  error
+			)
+			err = decoder(resp).Decode(&body)
+			if err != nil {
+				return nil, goahttp.ErrDecodingError("subscription", "createOne", err)
+			}
+			err = ValidateCreateOneServerErrorResponseBody(&body)
+			if err != nil {
+				return nil, goahttp.ErrValidationError("subscription", "createOne", err)
+			}
+			return nil, NewCreateOneServerError(&body)
 		default:
 			body, _ := io.ReadAll(resp.Body)
 			return nil, goahttp.ErrInvalidResponse("subscription", "createOne", resp.StatusCode, string(body))

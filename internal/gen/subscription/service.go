@@ -60,6 +60,11 @@ type SubscriptionCreateOnePayload struct {
 	Since *string
 }
 
+// MakeServerError builds a goa.ServiceError from an error.
+func MakeServerError(err error) *goa.ServiceError {
+	return goa.NewServiceError(err, "ServerError", false, false, false)
+}
+
 // MakeSubscriptionNotFound builds a goa.ServiceError from an error.
 func MakeSubscriptionNotFound(err error) *goa.ServiceError {
 	return goa.NewServiceError(err, "SubscriptionNotFound", false, false, false)

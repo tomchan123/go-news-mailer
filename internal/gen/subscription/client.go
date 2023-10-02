@@ -34,6 +34,7 @@ func NewClient(getAll, getOneByUID, deleteOneByUID, createOne goa.Endpoint) *Cli
 
 // GetAll calls the "getAll" endpoint of the "subscription" service.
 // GetAll may return the following errors:
+//   - "ServerError" (type *goa.ServiceError): Error returned when there is an internal server error
 //   - "SubscriptionNotFound" (type *goa.ServiceError): Error returned when the specified subscription does not exist
 //   - "SubscriptionFieldMissing" (type *goa.ServiceError): Error returned when the subscription has missing field(s)
 //   - "SubscriptionAlreadyExists" (type *goa.ServiceError): Error returned when the subscription already exists
@@ -49,6 +50,7 @@ func (c *Client) GetAll(ctx context.Context) (res []*Subscription, err error) {
 
 // GetOneByUID calls the "getOneByUID" endpoint of the "subscription" service.
 // GetOneByUID may return the following errors:
+//   - "ServerError" (type *goa.ServiceError): Error returned when there is an internal server error
 //   - "SubscriptionNotFound" (type *goa.ServiceError): Error returned when the specified subscription does not exist
 //   - "SubscriptionFieldMissing" (type *goa.ServiceError): Error returned when the subscription has missing field(s)
 //   - "SubscriptionAlreadyExists" (type *goa.ServiceError): Error returned when the subscription already exists
@@ -65,6 +67,7 @@ func (c *Client) GetOneByUID(ctx context.Context, p string) (res *Subscription, 
 // DeleteOneByUID calls the "deleteOneByUID" endpoint of the "subscription"
 // service.
 // DeleteOneByUID may return the following errors:
+//   - "ServerError" (type *goa.ServiceError): Error returned when there is an internal server error
 //   - "SubscriptionNotFound" (type *goa.ServiceError): Error returned when the specified subscription does not exist
 //   - "SubscriptionFieldMissing" (type *goa.ServiceError): Error returned when the subscription has missing field(s)
 //   - "SubscriptionAlreadyExists" (type *goa.ServiceError): Error returned when the subscription already exists
@@ -76,6 +79,7 @@ func (c *Client) DeleteOneByUID(ctx context.Context, p string) (err error) {
 
 // CreateOne calls the "createOne" endpoint of the "subscription" service.
 // CreateOne may return the following errors:
+//   - "ServerError" (type *goa.ServiceError): Error returned when there is an internal server error
 //   - "SubscriptionNotFound" (type *goa.ServiceError): Error returned when the specified subscription does not exist
 //   - "SubscriptionFieldMissing" (type *goa.ServiceError): Error returned when the subscription has missing field(s)
 //   - "SubscriptionAlreadyExists" (type *goa.ServiceError): Error returned when the subscription already exists

@@ -4,9 +4,9 @@ info:
     description: A REST service to interact with an emailer that sends AI-summarised news
     version: "1.0"
 servers:
-    - url: http://localhost:8888/api
+    - url: http://localhost:8888
 paths:
-    /subscription:
+    /api/subscriptions:
         get:
             tags:
                 - subscription
@@ -32,6 +32,14 @@ paths:
                                       name: John Doe
                                       since: "2012-04-23T18:25:43.511Z"
                                       uid: abcd1234
+                                    - email: user@email.com
+                                      name: John Doe
+                                      since: "2012-04-23T18:25:43.511Z"
+                                      uid: abcd1234
+                                    - email: user@email.com
+                                      name: John Doe
+                                      since: "2012-04-23T18:25:43.511Z"
+                                      uid: abcd1234
                             example:
                                 - email: user@email.com
                                   name: John Doe
@@ -41,6 +49,20 @@ paths:
                                   name: John Doe
                                   since: "2012-04-23T18:25:43.511Z"
                                   uid: abcd1234
+                                - email: user@email.com
+                                  name: John Doe
+                                  since: "2012-04-23T18:25:43.511Z"
+                                  uid: abcd1234
+                                - email: user@email.com
+                                  name: John Doe
+                                  since: "2012-04-23T18:25:43.511Z"
+                                  uid: abcd1234
+                "500":
+                    description: 'ServerError: Error returned when there is an internal server error'
+                    content:
+                        application/vnd.goa.error:
+                            schema:
+                                $ref: '#/components/schemas/Error'
         post:
             tags:
                 - subscription
@@ -82,7 +104,13 @@ paths:
                         application/vnd.goa.error:
                             schema:
                                 $ref: '#/components/schemas/Error'
-    /subscription/{uid}:
+                "500":
+                    description: 'ServerError: Error returned when there is an internal server error'
+                    content:
+                        application/vnd.goa.error:
+                            schema:
+                                $ref: '#/components/schemas/Error'
+    /api/subscriptions/{uid}:
         delete:
             tags:
                 - subscription
@@ -104,6 +132,12 @@ paths:
                     description: OK response.
                 "404":
                     description: 'SubscriptionNotFound: Error returned when the specified subscription does not exist'
+                    content:
+                        application/vnd.goa.error:
+                            schema:
+                                $ref: '#/components/schemas/Error'
+                "500":
+                    description: 'ServerError: Error returned when there is an internal server error'
                     content:
                         application/vnd.goa.error:
                             schema:
@@ -138,6 +172,12 @@ paths:
                                 uid: abcd1234
                 "404":
                     description: 'SubscriptionNotFound: Error returned when the specified subscription does not exist'
+                    content:
+                        application/vnd.goa.error:
+                            schema:
+                                $ref: '#/components/schemas/Error'
+                "500":
+                    description: 'ServerError: Error returned when there is an internal server error'
                     content:
                         application/vnd.goa.error:
                             schema:
@@ -177,7 +217,7 @@ components:
                 fault:
                     type: boolean
                     description: Is the error a server-side fault?
-                    example: false
+                    example: true
                 id:
                     type: string
                     description: ID is a unique identifier for this particular occurrence of the problem.
@@ -197,15 +237,15 @@ components:
                 timeout:
                     type: boolean
                     description: Is the error a timeout?
-                    example: false
-            description: Error returned when the specified subscription does not exist
+                    example: true
+            description: Error returned when there is an internal server error
             example:
-                fault: false
+                fault: true
                 id: 123abc
                 message: parameter 'p' must be an integer
                 name: bad_request
-                temporary: false
-                timeout: false
+                temporary: true
+                timeout: true
             required:
                 - name
                 - id

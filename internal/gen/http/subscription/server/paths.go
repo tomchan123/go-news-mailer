@@ -14,20 +14,20 @@ import (
 
 // GetAllSubscriptionPath returns the URL path to the subscription service getAll HTTP endpoint.
 func GetAllSubscriptionPath() string {
-	return "/subscription"
+	return "/api/subscriptions"
 }
 
 // GetOneByUIDSubscriptionPath returns the URL path to the subscription service getOneByUID HTTP endpoint.
 func GetOneByUIDSubscriptionPath(uid string) string {
-	return fmt.Sprintf("/subscription/%v", uid)
+	return fmt.Sprintf("/api/subscriptions/%v", uid)
 }
 
 // DeleteOneByUIDSubscriptionPath returns the URL path to the subscription service deleteOneByUID HTTP endpoint.
 func DeleteOneByUIDSubscriptionPath(uid string) string {
-	return fmt.Sprintf("/subscription/%v", uid)
+	return fmt.Sprintf("/api/subscriptions/%v", uid)
 }
 
 // CreateOneSubscriptionPath returns the URL path to the subscription service createOne HTTP endpoint.
 func CreateOneSubscriptionPath() string {
-	return "/subscription"
+	return "/api/subscriptions"
 }

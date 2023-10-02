@@ -4,7 +4,7 @@ import (
 	"net/http"
 	"time"
 
-	cli "github.com/tomchan123/go-news-mailer/gen/http/cli/news_svr"
+	cli "github.com/tomchan123/go-news-mailer/internal/gen/http/cli/news_svr"
 	goahttp "goa.design/goa/v3/http"
 	goa "goa.design/goa/v3/pkg"
 )

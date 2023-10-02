@@ -31,6 +31,35 @@ func EncodeGetAllResponse(encoder func(context.Context, http.ResponseWriter) goa
 	}
 }
 
+// EncodeGetAllError returns an encoder for errors returned by the getAll
+// subscription endpoint.
+func EncodeGetAllError(encoder func(context.Context, http.ResponseWriter) goahttp.Encoder, formatter func(ctx context.Context, err error) goahttp.Statuser) func(context.Context, http.ResponseWriter, error) error {
+	encodeError := goahttp.ErrorEncoder(encoder, formatter)
+	return func(ctx context.Context, w http.ResponseWriter, v error) error {
+		var en goa.GoaErrorNamer
+		if !errors.As(v, &en) {
+			return encodeError(ctx, w, v)
+		}
+		switch en.GoaErrorName() {
+		case "ServerError":
+			var res *goa.ServiceError
+			errors.As(v, &res)
+			enc := encoder(ctx, w)
+			var body any
+			if formatter != nil {
+				body = formatter(ctx, res)
+			} else {
+				body = NewGetAllServerErrorResponseBody(res)
+			}
+			w.Header().Set("goa-error", res.GoaErrorName())
+			w.WriteHeader(http.StatusInternalServerError)
+			return enc.Encode(body)
+		default:
+			return encodeError(ctx, w, v)
+		}
+	}
+}
+
 // EncodeGetOneByUIDResponse returns an encoder for responses returned by the
 // subscription getOneByUID endpoint.
 func EncodeGetOneByUIDResponse(encoder func(context.Context, http.ResponseWriter) goahttp.Encoder) func(context.Context, http.ResponseWriter, any) error {
@@ -81,6 +110,19 @@ func EncodeGetOneByUIDError(encoder func(context.Context, http.ResponseWriter) g
 			}
 			w.Header().Set("goa-error", res.GoaErrorName())
 			w.WriteHeader(http.StatusNotFound)
+			return enc.Encode(body)
+		case "ServerError":
+			var res *goa.ServiceError
+			errors.As(v, &res)
+			enc := encoder(ctx, w)
+			var body any
+			if formatter != nil {
+				body = formatter(ctx, res)
+			} else {
+				body = NewGetOneByUIDServerErrorResponseBody(res)
+			}
+			w.Header().Set("goa-error", res.GoaErrorName())
+			w.WriteHeader(http.StatusInternalServerError)
 			return enc.Encode(body)
 		default:
 			return encodeError(ctx, w, v)
@@ -135,6 +177,19 @@ func EncodeDeleteOneByUIDError(encoder func(context.Context, http.ResponseWriter
 			}
 			w.Header().Set("goa-error", res.GoaErrorName())
 			w.WriteHeader(http.StatusNotFound)
+			return enc.Encode(body)
+		case "ServerError":
+			var res *goa.ServiceError
+			errors.As(v, &res)
+			enc := encoder(ctx, w)
+			var body any
+			if formatter != nil {
+				body = formatter(ctx, res)
+			} else {
+				body = NewDeleteOneByUIDServerErrorResponseBody(res)
+			}
+			w.Header().Set("goa-error", res.GoaErrorName())
+			w.WriteHeader(http.StatusInternalServerError)
 			return enc.Encode(body)
 		default:
 			return encodeError(ctx, w, v)
@@ -214,6 +269,19 @@ func EncodeCreateOneError(encoder func(context.Context, http.ResponseWriter) goa
 			}
 			w.Header().Set("goa-error", res.GoaErrorName())
 			w.WriteHeader(http.StatusConflict)
+			return enc.Encode(body)
+		case "ServerError":
+			var res *goa.ServiceError
+			errors.As(v, &res)
+			enc := encoder(ctx, w)
+			var body any
+			if formatter != nil {
+				body = formatter(ctx, res)
+			} else {
+				body = NewCreateOneServerErrorResponseBody(res)
+			}
+			w.Header().Set("goa-error", res.GoaErrorName())
+			w.WriteHeader(http.StatusInternalServerError)
 			return enc.Encode(body)
 		default:
 			return encodeError(ctx, w, v)

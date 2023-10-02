@@ -13,6 +13,7 @@ import (
 	"syscall"
 
 	subscription "github.com/tomchan123/go-news-mailer/internal/gen/subscription"
+	db "github.com/tomchan123/go-news-mailer/internal/mongodb"
 	news "github.com/tomchan123/go-news-mailer/internal/news"
 )
 
@@ -36,12 +37,25 @@ func main() {
 		logger = log.New(os.Stderr, "[news] ", log.Ltime)
 	}
 
+	// Setup DB
+	var (
+		dbx *db.Mongodb
+	)
+	{
+		dbx = &db.Mongodb{}
+		d, err := dbx.ConnectDB("mongodb://localhost:27017")
+		if err != nil {
+			log.Fatal(err)
+		}
+		defer d()
+	}
+
 	// Initialize the services.
 	var (
 		subscriptionSvc subscription.Service
 	)
 	{
-		subscriptionSvc = news.NewSubscription(logger)
+		subscriptionSvc = news.NewSubscription(logger, dbx)
 	}
 
 	// Wrap the services in endpoints that can be invoked from other services
@@ -72,7 +86,7 @@ func main() {
 	switch *hostF {
 	case "development":
 		{
-			addr := "http://localhost:8888/api"
+			addr := "http://localhost:8888"
 			u, err := url.Parse(addr)
 			if err != nil {
 				logger.Fatalf("invalid URL %#v: %s\n", addr, err)

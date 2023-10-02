@@ -9,10 +9,14 @@ var _ = API("news", func() {
 	Description("A REST service to interact with an emailer that sends AI-summarised news")
 	Version("1.0")
 
+	HTTP(func() {
+		Path("/api")
+	})
+
 	Server("newsSvr", func() {
 		Services("subscription")
 
-		Host("development", func() { URI("http://localhost:8888/api") })
+		Host("development", func() { URI("http://localhost:8888") })
 	})
 })
 
@@ -20,9 +24,13 @@ var _ = Service("subscription", func() {
 	Description("The subscription service provides ways to manage news subscription")
 
 	HTTP(func() {
-		Path("/subscription")
+		Path("/subscriptions")
+		Response("ServerError", StatusInternalServerError)
 	})
 
+	Error("ServerError", func() {
+		Description("Error returned when there is an internal server error")
+	})
 	Error("SubscriptionNotFound", func() {
 		Description("Error returned when the specified subscription does not exist")
 	})

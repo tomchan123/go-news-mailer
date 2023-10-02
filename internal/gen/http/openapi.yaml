@@ -4,6 +4,7 @@ info:
     description: A REST service to interact with an emailer that sends AI-summarised news
     version: "1.0"
 host: localhost:8888
+basePath: /api
 consumes:
     - application/json
     - application/xml
@@ -13,7 +14,7 @@ produces:
     - application/xml
     - application/gob
 paths:
-    /subscription:
+    /subscriptions:
         get:
             tags:
                 - subscription
@@ -27,6 +28,10 @@ paths:
                         type: array
                         items:
                             $ref: '#/definitions/SubscriptionResponse'
+                "500":
+                    description: Internal Server Error response.
+                    schema:
+                        $ref: '#/definitions/SubscriptionGetAllServerErrorResponseBody'
             schemes:
                 - http
         post:
@@ -56,9 +61,13 @@ paths:
                     description: Conflict response.
                     schema:
                         $ref: '#/definitions/SubscriptionCreateOneSubscriptionAlreadyExistsResponseBody'
+                "500":
+                    description: Internal Server Error response.
+                    schema:
+                        $ref: '#/definitions/SubscriptionCreateOneServerErrorResponseBody'
             schemes:
                 - http
-    /subscription/{uid}:
+    /subscriptions/{uid}:
         get:
             tags:
                 - subscription
@@ -80,6 +89,10 @@ paths:
                     description: Not Found response.
                     schema:
                         $ref: '#/definitions/SubscriptionGetOneByUIDSubscriptionNotFoundResponseBody'
+                "500":
+                    description: Internal Server Error response.
+                    schema:
+                        $ref: '#/definitions/SubscriptionGetOneByUIDServerErrorResponseBody'
             schemes:
                 - http
         delete:
@@ -101,6 +114,10 @@ paths:
                     description: Not Found response.
                     schema:
                         $ref: '#/definitions/SubscriptionDeleteOneByUIDSubscriptionNotFoundResponseBody'
+                "500":
+                    description: Internal Server Error response.
+                    schema:
+                        $ref: '#/definitions/SubscriptionDeleteOneByUIDServerErrorResponseBody'
             schemes:
                 - http
 definitions:
@@ -158,14 +175,14 @@ definitions:
             name: John Doe
             since: "2012-04-23T18:25:43.511Z"
             uid: abcd1234
-    SubscriptionCreateOneSubscriptionAlreadyExistsResponseBody:
+    SubscriptionCreateOneServerErrorResponseBody:
         title: 'Mediatype identifier: application/vnd.goa.error; view=default'
         type: object
         properties:
             fault:
                 type: boolean
                 description: Is the error a server-side fault?
-                example: false
+                example: true
             id:
                 type: string
                 description: ID is a unique identifier for this particular occurrence of the problem.
@@ -186,14 +203,57 @@ definitions:
                 type: boolean
                 description: Is the error a timeout?
                 example: false
-        description: Error returned when the subscription already exists (default view)
+        description: Error returned when there is an internal server error (default view)
         example:
-            fault: true
+            fault: false
             id: 123abc
             message: parameter 'p' must be an integer
             name: bad_request
-            temporary: true
-            timeout: true
+            temporary: false
+            timeout: false
+        required:
+            - name
+            - id
+            - message
+            - temporary
+            - timeout
+            - fault
+    SubscriptionCreateOneSubscriptionAlreadyExistsResponseBody:
+        title: 'Mediatype identifier: application/vnd.goa.error; view=default'
+        type: object
+        properties:
+            fault:
+                type: boolean
+                description: Is the error a server-side fault?
+                example: true
+            id:
+                type: string
+                description: ID is a unique identifier for this particular occurrence of the problem.
+                example: 123abc
+            message:
+                type: string
+                description: Message is a human-readable explanation specific to this occurrence of the problem.
+                example: parameter 'p' must be an integer
+            name:
+                type: string
+                description: Name is the name of this class of errors.
+                example: bad_request
+            temporary:
+                type: boolean
+                description: Is the error temporary?
+                example: false
+            timeout:
+                type: boolean
+                description: Is the error a timeout?
+                example: true
+        description: Error returned when the subscription already exists (default view)
+        example:
+            fault: false
+            id: 123abc
+            message: parameter 'p' must be an integer
+            name: bad_request
+            temporary: false
+            timeout: false
         required:
             - name
             - id
@@ -208,6 +268,49 @@ definitions:
             fault:
                 type: boolean
                 description: Is the error a server-side fault?
+                example: false
+            id:
+                type: string
+                description: ID is a unique identifier for this particular occurrence of the problem.
+                example: 123abc
+            message:
+                type: string
+                description: Message is a human-readable explanation specific to this occurrence of the problem.
+                example: parameter 'p' must be an integer
+            name:
+                type: string
+                description: Name is the name of this class of errors.
+                example: bad_request
+            temporary:
+                type: boolean
+                description: Is the error temporary?
+                example: true
+            timeout:
+                type: boolean
+                description: Is the error a timeout?
+                example: true
+        description: Error returned when the subscription has missing field(s) (default view)
+        example:
+            fault: false
+            id: 123abc
+            message: parameter 'p' must be an integer
+            name: bad_request
+            temporary: true
+            timeout: true
+        required:
+            - name
+            - id
+            - message
+            - temporary
+            - timeout
+            - fault
+    SubscriptionDeleteOneByUIDServerErrorResponseBody:
+        title: 'Mediatype identifier: application/vnd.goa.error; view=default'
+        type: object
+        properties:
+            fault:
+                type: boolean
+                description: Is the error a server-side fault?
                 example: true
             id:
                 type: string
@@ -228,15 +331,15 @@ definitions:
             timeout:
                 type: boolean
                 description: Is the error a timeout?
-                example: false
-        description: Error returned when the subscription has missing field(s) (default view)
+                example: true
+        description: Error returned when there is an internal server error (default view)
         example:
             fault: true
             id: 123abc
             message: parameter 'p' must be an integer
             name: bad_request
             temporary: false
-            timeout: true
+            timeout: false
         required:
             - name
             - id
@@ -251,7 +354,7 @@ definitions:
             fault:
                 type: boolean
                 description: Is the error a server-side fault?
-                example: false
+                example: true
             id:
                 type: string
                 description: ID is a unique identifier for this particular occurrence of the problem.
@@ -267,19 +370,62 @@ definitions:
             temporary:
                 type: boolean
                 description: Is the error temporary?
-                example: true
+                example: false
             timeout:
                 type: boolean
                 description: Is the error a timeout?
                 example: true
         description: Error returned when the specified subscription does not exist (default view)
         example:
+            fault: false
+            id: 123abc
+            message: parameter 'p' must be an integer
+            name: bad_request
+            temporary: false
+            timeout: true
+        required:
+            - name
+            - id
+            - message
+            - temporary
+            - timeout
+            - fault
+    SubscriptionGetAllServerErrorResponseBody:
+        title: 'Mediatype identifier: application/vnd.goa.error; view=default'
+        type: object
+        properties:
+            fault:
+                type: boolean
+                description: Is the error a server-side fault?
+                example: true
+            id:
+                type: string
+                description: ID is a unique identifier for this particular occurrence of the problem.
+                example: 123abc
+            message:
+                type: string
+                description: Message is a human-readable explanation specific to this occurrence of the problem.
+                example: parameter 'p' must be an integer
+            name:
+                type: string
+                description: Name is the name of this class of errors.
+                example: bad_request
+            temporary:
+                type: boolean
+                description: Is the error temporary?
+                example: false
+            timeout:
+                type: boolean
+                description: Is the error a timeout?
+                example: false
+        description: Error returned when there is an internal server error (default view)
+        example:
             fault: true
             id: 123abc
             message: parameter 'p' must be an integer
             name: bad_request
             temporary: false
-            timeout: false
+            timeout: true
         required:
             - name
             - id
@@ -313,14 +459,14 @@ definitions:
             name: John Doe
             since: "2012-04-23T18:25:43.511Z"
             uid: abcd1234
-    SubscriptionGetOneByUIDSubscriptionNotFoundResponseBody:
+    SubscriptionGetOneByUIDServerErrorResponseBody:
         title: 'Mediatype identifier: application/vnd.goa.error; view=default'
         type: object
         properties:
             fault:
                 type: boolean
                 description: Is the error a server-side fault?
-                example: true
+                example: false
             id:
                 type: string
                 description: ID is a unique identifier for this particular occurrence of the problem.
@@ -341,9 +487,52 @@ definitions:
                 type: boolean
                 description: Is the error a timeout?
                 example: true
-        description: Error returned when the specified subscription does not exist (default view)
+        description: Error returned when there is an internal server error (default view)
         example:
             fault: false
+            id: 123abc
+            message: parameter 'p' must be an integer
+            name: bad_request
+            temporary: false
+            timeout: false
+        required:
+            - name
+            - id
+            - message
+            - temporary
+            - timeout
+            - fault
+    SubscriptionGetOneByUIDSubscriptionNotFoundResponseBody:
+        title: 'Mediatype identifier: application/vnd.goa.error; view=default'
+        type: object
+        properties:
+            fault:
+                type: boolean
+                description: Is the error a server-side fault?
+                example: false
+            id:
+                type: string
+                description: ID is a unique identifier for this particular occurrence of the problem.
+                example: 123abc
+            message:
+                type: string
+                description: Message is a human-readable explanation specific to this occurrence of the problem.
+                example: parameter 'p' must be an integer
+            name:
+                type: string
+                description: Name is the name of this class of errors.
+                example: bad_request
+            temporary:
+                type: boolean
+                description: Is the error temporary?
+                example: true
+            timeout:
+                type: boolean
+                description: Is the error a timeout?
+                example: false
+        description: Error returned when the specified subscription does not exist (default view)
+        example:
+            fault: true
             id: 123abc
             message: parameter 'p' must be an integer
             name: bad_request
