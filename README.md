@@ -1,2 +1,2 @@
 # go-news-mailer
-A simple Go news delivery service over Email
+A simple email news subscription service
