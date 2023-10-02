@@ -29,6 +29,10 @@ type Client struct {
 	// deleteOneByUID endpoint.
 	DeleteOneByUIDDoer goahttp.Doer
 
+	// CreateOne Doer is the HTTP client used to make requests to the createOne
+	// endpoint.
+	CreateOneDoer goahttp.Doer
+
 	// RestoreResponseBody controls whether the response bodies are reset after
 	// decoding so they can be read again.
 	RestoreResponseBody bool
@@ -52,6 +56,7 @@ func NewClient(
 		GetAllDoer:          doer,
 		GetOneByUIDDoer:     doer,
 		DeleteOneByUIDDoer:  doer,
+		CreateOneDoer:       doer,
 		RestoreResponseBody: restoreBody,
 		scheme:              scheme,
 		host:                host,
@@ -112,6 +117,30 @@ func (c *Client) DeleteOneByUID() goa.Endpoint {
 		resp, err := c.DeleteOneByUIDDoer.Do(req)
 		if err != nil {
 			return nil, goahttp.ErrRequestError("subscription", "deleteOneByUID", err)
+		}
+		return decodeResponse(resp)
+	}
+}
+
+// CreateOne returns an endpoint that makes HTTP requests to the subscription
+// service createOne server.
+func (c *Client) CreateOne() goa.Endpoint {
+	var (
+		encodeRequest  = EncodeCreateOneRequest(c.encoder)
+		decodeResponse = DecodeCreateOneResponse(c.decoder, c.RestoreResponseBody)
+	)
+	return func(ctx context.Context, v any) (any, error) {
+		req, err := c.BuildCreateOneRequest(ctx, v)
+		if err != nil {
+			return nil, err
+		}
+		err = encodeRequest(req, v)
+		if err != nil {
+			return nil, err
+		}
+		resp, err := c.CreateOneDoer.Do(req)
+		if err != nil {
+			return nil, goahttp.ErrRequestError("subscription", "createOne", err)
 		}
 		return decodeResponse(resp)
 	}

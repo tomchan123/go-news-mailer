@@ -26,3 +26,8 @@ func GetOneByUIDSubscriptionPath(uid string) string {
 func DeleteOneByUIDSubscriptionPath(uid string) string {
 	return fmt.Sprintf("/subscription/%v", uid)
 }
+
+// CreateOneSubscriptionPath returns the URL path to the subscription service createOne HTTP endpoint.
+func CreateOneSubscriptionPath() string {
+	return "/subscription"
+}

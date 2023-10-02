@@ -19,6 +19,7 @@ type Endpoints struct {
 	GetAll         goa.Endpoint
 	GetOneByUID    goa.Endpoint
 	DeleteOneByUID goa.Endpoint
+	CreateOne      goa.Endpoint
 }
 
 // NewEndpoints wraps the methods of the "subscription" service with endpoints.
@@ -27,6 +28,7 @@ func NewEndpoints(s Service) *Endpoints {
 		GetAll:         NewGetAllEndpoint(s),
 		GetOneByUID:    NewGetOneByUIDEndpoint(s),
 		DeleteOneByUID: NewDeleteOneByUIDEndpoint(s),
+		CreateOne:      NewCreateOneEndpoint(s),
 	}
 }
 
@@ -35,6 +37,7 @@ func (e *Endpoints) Use(m func(goa.Endpoint) goa.Endpoint) {
 	e.GetAll = m(e.GetAll)
 	e.GetOneByUID = m(e.GetOneByUID)
 	e.DeleteOneByUID = m(e.DeleteOneByUID)
+	e.CreateOne = m(e.CreateOne)
 }
 
 // NewGetAllEndpoint returns an endpoint function that calls the method
@@ -60,5 +63,14 @@ func NewDeleteOneByUIDEndpoint(s Service) goa.Endpoint {
 	return func(ctx context.Context, req any) (any, error) {
 		p := req.(string)
 		return nil, s.DeleteOneByUID(ctx, p)
+	}
+}
+
+// NewCreateOneEndpoint returns an endpoint function that calls the method
+// "createOne" of service "subscription".
+func NewCreateOneEndpoint(s Service) goa.Endpoint {
+	return func(ctx context.Context, req any) (any, error) {
+		p := req.(*SubscriptionCreateOnePayload)
+		return s.CreateOne(ctx, p)
 	}
 }

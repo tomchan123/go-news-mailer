@@ -13,6 +13,19 @@ import (
 	goa "goa.design/goa/v3/pkg"
 )
 
+// CreateOneRequestBody is the type of the "subscription" service "createOne"
+// endpoint HTTP request body.
+type CreateOneRequestBody struct {
+	// Unique identifier of subcription
+	UID *string `form:"uid,omitempty" json:"uid,omitempty" xml:"uid,omitempty"`
+	// Subscribed email
+	Email string `form:"email" json:"email" xml:"email"`
+	// Name of the subscriber
+	Name *string `form:"name,omitempty" json:"name,omitempty" xml:"name,omitempty"`
+	// Datetime when the subscription was made
+	Since *string `form:"since,omitempty" json:"since,omitempty" xml:"since,omitempty"`
+}
+
 // GetAllResponseBody is the type of the "subscription" service "getAll"
 // endpoint HTTP response body.
 type GetAllResponseBody []*SubscriptionResponse
@@ -20,6 +33,19 @@ type GetAllResponseBody []*SubscriptionResponse
 // GetOneByUIDResponseBody is the type of the "subscription" service
 // "getOneByUID" endpoint HTTP response body.
 type GetOneByUIDResponseBody struct {
+	// Unique identifier of subcription
+	UID *string `form:"uid,omitempty" json:"uid,omitempty" xml:"uid,omitempty"`
+	// Subscribed email
+	Email *string `form:"email,omitempty" json:"email,omitempty" xml:"email,omitempty"`
+	// Name of the subscriber
+	Name *string `form:"name,omitempty" json:"name,omitempty" xml:"name,omitempty"`
+	// Datetime when the subscription was made
+	Since *string `form:"since,omitempty" json:"since,omitempty" xml:"since,omitempty"`
+}
+
+// CreateOneResponseBody is the type of the "subscription" service "createOne"
+// endpoint HTTP response body.
+type CreateOneResponseBody struct {
 	// Unique identifier of subcription
 	UID *string `form:"uid,omitempty" json:"uid,omitempty" xml:"uid,omitempty"`
 	// Subscribed email
@@ -68,6 +94,44 @@ type DeleteOneByUIDSubscriptionNotFoundResponseBody struct {
 	Fault *bool `form:"fault,omitempty" json:"fault,omitempty" xml:"fault,omitempty"`
 }
 
+// CreateOneSubscriptionFieldMissingResponseBody is the type of the
+// "subscription" service "createOne" endpoint HTTP response body for the
+// "SubscriptionFieldMissing" error.
+type CreateOneSubscriptionFieldMissingResponseBody struct {
+	// Name is the name of this class of errors.
+	Name *string `form:"name,omitempty" json:"name,omitempty" xml:"name,omitempty"`
+	// ID is a unique identifier for this particular occurrence of the problem.
+	ID *string `form:"id,omitempty" json:"id,omitempty" xml:"id,omitempty"`
+	// Message is a human-readable explanation specific to this occurrence of the
+	// problem.
+	Message *string `form:"message,omitempty" json:"message,omitempty" xml:"message,omitempty"`
+	// Is the error temporary?
+	Temporary *bool `form:"temporary,omitempty" json:"temporary,omitempty" xml:"temporary,omitempty"`
+	// Is the error a timeout?
+	Timeout *bool `form:"timeout,omitempty" json:"timeout,omitempty" xml:"timeout,omitempty"`
+	// Is the error a server-side fault?
+	Fault *bool `form:"fault,omitempty" json:"fault,omitempty" xml:"fault,omitempty"`
+}
+
+// CreateOneSubscriptionAlreadyExistsResponseBody is the type of the
+// "subscription" service "createOne" endpoint HTTP response body for the
+// "SubscriptionAlreadyExists" error.
+type CreateOneSubscriptionAlreadyExistsResponseBody struct {
+	// Name is the name of this class of errors.
+	Name *string `form:"name,omitempty" json:"name,omitempty" xml:"name,omitempty"`
+	// ID is a unique identifier for this particular occurrence of the problem.
+	ID *string `form:"id,omitempty" json:"id,omitempty" xml:"id,omitempty"`
+	// Message is a human-readable explanation specific to this occurrence of the
+	// problem.
+	Message *string `form:"message,omitempty" json:"message,omitempty" xml:"message,omitempty"`
+	// Is the error temporary?
+	Temporary *bool `form:"temporary,omitempty" json:"temporary,omitempty" xml:"temporary,omitempty"`
+	// Is the error a timeout?
+	Timeout *bool `form:"timeout,omitempty" json:"timeout,omitempty" xml:"timeout,omitempty"`
+	// Is the error a server-side fault?
+	Fault *bool `form:"fault,omitempty" json:"fault,omitempty" xml:"fault,omitempty"`
+}
+
 // SubscriptionResponse is used to define fields on response body types.
 type SubscriptionResponse struct {
 	// Unique identifier of subcription
@@ -78,6 +142,18 @@ type SubscriptionResponse struct {
 	Name *string `form:"name,omitempty" json:"name,omitempty" xml:"name,omitempty"`
 	// Datetime when the subscription was made
 	Since *string `form:"since,omitempty" json:"since,omitempty" xml:"since,omitempty"`
+}
+
+// NewCreateOneRequestBody builds the HTTP request body from the payload of the
+// "createOne" endpoint of the "subscription" service.
+func NewCreateOneRequestBody(p *subscription.SubscriptionCreateOnePayload) *CreateOneRequestBody {
+	body := &CreateOneRequestBody{
+		UID:   p.UID,
+		Email: p.Email,
+		Name:  p.Name,
+		Since: p.Since,
+	}
+	return body
 }
 
 // NewGetAllSubscriptionOK builds a "subscription" service "getAll" endpoint
@@ -95,8 +171,8 @@ func NewGetAllSubscriptionOK(body []*SubscriptionResponse) []*subscription.Subsc
 // endpoint result from a HTTP "OK" response.
 func NewGetOneByUIDSubscriptionOK(body *GetOneByUIDResponseBody) *subscription.Subscription {
 	v := &subscription.Subscription{
-		UID:   *body.UID,
-		Email: *body.Email,
+		UID:   body.UID,
+		Email: body.Email,
 		Name:  body.Name,
 		Since: body.Since,
 	}
@@ -134,16 +210,47 @@ func NewDeleteOneByUIDSubscriptionNotFound(body *DeleteOneByUIDSubscriptionNotFo
 	return v
 }
 
-// ValidateGetOneByUIDResponseBody runs the validations defined on
-// GetOneByUIDResponseBody
-func ValidateGetOneByUIDResponseBody(body *GetOneByUIDResponseBody) (err error) {
-	if body.UID == nil {
-		err = goa.MergeErrors(err, goa.MissingFieldError("uid", "body"))
+// NewCreateOneSubscriptionOK builds a "subscription" service "createOne"
+// endpoint result from a HTTP "OK" response.
+func NewCreateOneSubscriptionOK(body *CreateOneResponseBody) *subscription.Subscription {
+	v := &subscription.Subscription{
+		UID:   body.UID,
+		Email: body.Email,
+		Name:  body.Name,
+		Since: body.Since,
 	}
-	if body.Email == nil {
-		err = goa.MergeErrors(err, goa.MissingFieldError("email", "body"))
+
+	return v
+}
+
+// NewCreateOneSubscriptionFieldMissing builds a subscription service createOne
+// endpoint SubscriptionFieldMissing error.
+func NewCreateOneSubscriptionFieldMissing(body *CreateOneSubscriptionFieldMissingResponseBody) *goa.ServiceError {
+	v := &goa.ServiceError{
+		Name:      *body.Name,
+		ID:        *body.ID,
+		Message:   *body.Message,
+		Temporary: *body.Temporary,
+		Timeout:   *body.Timeout,
+		Fault:     *body.Fault,
 	}
-	return
+
+	return v
+}
+
+// NewCreateOneSubscriptionAlreadyExists builds a subscription service
+// createOne endpoint SubscriptionAlreadyExists error.
+func NewCreateOneSubscriptionAlreadyExists(body *CreateOneSubscriptionAlreadyExistsResponseBody) *goa.ServiceError {
+	v := &goa.ServiceError{
+		Name:      *body.Name,
+		ID:        *body.ID,
+		Message:   *body.Message,
+		Temporary: *body.Temporary,
+		Timeout:   *body.Timeout,
+		Fault:     *body.Fault,
+	}
+
+	return v
 }
 
 // ValidateGetOneByUIDSubscriptionNotFoundResponseBody runs the validations
@@ -194,14 +301,50 @@ func ValidateDeleteOneByUIDSubscriptionNotFoundResponseBody(body *DeleteOneByUID
 	return
 }
 
-// ValidateSubscriptionResponse runs the validations defined on
-// SubscriptionResponse
-func ValidateSubscriptionResponse(body *SubscriptionResponse) (err error) {
-	if body.UID == nil {
-		err = goa.MergeErrors(err, goa.MissingFieldError("uid", "body"))
+// ValidateCreateOneSubscriptionFieldMissingResponseBody runs the validations
+// defined on createOne_SubscriptionFieldMissing_response_body
+func ValidateCreateOneSubscriptionFieldMissingResponseBody(body *CreateOneSubscriptionFieldMissingResponseBody) (err error) {
+	if body.Name == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("name", "body"))
 	}
-	if body.Email == nil {
-		err = goa.MergeErrors(err, goa.MissingFieldError("email", "body"))
+	if body.ID == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("id", "body"))
+	}
+	if body.Message == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("message", "body"))
+	}
+	if body.Temporary == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("temporary", "body"))
+	}
+	if body.Timeout == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("timeout", "body"))
+	}
+	if body.Fault == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("fault", "body"))
+	}
+	return
+}
+
+// ValidateCreateOneSubscriptionAlreadyExistsResponseBody runs the validations
+// defined on createOne_SubscriptionAlreadyExists_response_body
+func ValidateCreateOneSubscriptionAlreadyExistsResponseBody(body *CreateOneSubscriptionAlreadyExistsResponseBody) (err error) {
+	if body.Name == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("name", "body"))
+	}
+	if body.ID == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("id", "body"))
+	}
+	if body.Message == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("message", "body"))
+	}
+	if body.Temporary == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("temporary", "body"))
+	}
+	if body.Timeout == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("timeout", "body"))
+	}
+	if body.Fault == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("fault", "body"))
 	}
 	return
 }

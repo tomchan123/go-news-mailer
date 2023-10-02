@@ -17,7 +17,6 @@ import (
 
 	subscription "github.com/tomchan123/go-news-mailer/internal/gen/subscription"
 	goahttp "goa.design/goa/v3/http"
-	goa "goa.design/goa/v3/pkg"
 )
 
 // BuildGetAllRequest instantiates a HTTP request object with method and path
@@ -61,16 +60,6 @@ func DecodeGetAllResponse(decoder func(*http.Response) goahttp.Decoder, restoreB
 			err = decoder(resp).Decode(&body)
 			if err != nil {
 				return nil, goahttp.ErrDecodingError("subscription", "getAll", err)
-			}
-			for _, e := range body {
-				if e != nil {
-					if err2 := ValidateSubscriptionResponse(e); err2 != nil {
-						err = goa.MergeErrors(err, err2)
-					}
-				}
-			}
-			if err != nil {
-				return nil, goahttp.ErrValidationError("subscription", "getAll", err)
 			}
 			res := NewGetAllSubscriptionOK(body)
 			return res, nil
@@ -135,10 +124,6 @@ func DecodeGetOneByUIDResponse(decoder func(*http.Response) goahttp.Decoder, res
 			err = decoder(resp).Decode(&body)
 			if err != nil {
 				return nil, goahttp.ErrDecodingError("subscription", "getOneByUID", err)
-			}
-			err = ValidateGetOneByUIDResponseBody(&body)
-			if err != nil {
-				return nil, goahttp.ErrValidationError("subscription", "getOneByUID", err)
 			}
 			res := NewGetOneByUIDSubscriptionOK(&body)
 			return res, nil
@@ -232,12 +217,111 @@ func DecodeDeleteOneByUIDResponse(decoder func(*http.Response) goahttp.Decoder, 
 	}
 }
 
+// BuildCreateOneRequest instantiates a HTTP request object with method and
+// path set to call the "subscription" service "createOne" endpoint
+func (c *Client) BuildCreateOneRequest(ctx context.Context, v any) (*http.Request, error) {
+	u := &url.URL{Scheme: c.scheme, Host: c.host, Path: CreateOneSubscriptionPath()}
+	req, err := http.NewRequest("POST", u.String(), nil)
+	if err != nil {
+		return nil, goahttp.ErrInvalidURL("subscription", "createOne", u.String(), err)
+	}
+	if ctx != nil {
+		req = req.WithContext(ctx)
+	}
+
+	return req, nil
+}
+
+// EncodeCreateOneRequest returns an encoder for requests sent to the
+// subscription createOne server.
+func EncodeCreateOneRequest(encoder func(*http.Request) goahttp.Encoder) func(*http.Request, any) error {
+	return func(req *http.Request, v any) error {
+		p, ok := v.(*subscription.SubscriptionCreateOnePayload)
+		if !ok {
+			return goahttp.ErrInvalidType("subscription", "createOne", "*subscription.SubscriptionCreateOnePayload", v)
+		}
+		body := NewCreateOneRequestBody(p)
+		if err := encoder(req).Encode(&body); err != nil {
+			return goahttp.ErrEncodingError("subscription", "createOne", err)
+		}
+		return nil
+	}
+}
+
+// DecodeCreateOneResponse returns a decoder for responses returned by the
+// subscription createOne endpoint. restoreBody controls whether the response
+// body should be restored after having been read.
+// DecodeCreateOneResponse may return the following errors:
+//   - "SubscriptionFieldMissing" (type *goa.ServiceError): http.StatusBadRequest
+//   - "SubscriptionAlreadyExists" (type *goa.ServiceError): http.StatusConflict
+//   - error: internal error
+func DecodeCreateOneResponse(decoder func(*http.Response) goahttp.Decoder, restoreBody bool) func(*http.Response) (any, error) {
+	return func(resp *http.Response) (any, error) {
+		if restoreBody {
+			b, err := io.ReadAll(resp.Body)
+			if err != nil {
+				return nil, err
+			}
+			resp.Body = io.NopCloser(bytes.NewBuffer(b))
+			defer func() {
+				resp.Body = io.NopCloser(bytes.NewBuffer(b))
+			}()
+		} else {
+			defer resp.Body.Close()
+		}
+		switch resp.StatusCode {
+		case http.StatusOK:
+			var (
+				body CreateOneResponseBody
+				err  error
+			)
+			err = decoder(resp).Decode(&body)
+			if err != nil {
+				return nil, goahttp.ErrDecodingError("subscription", "createOne", err)
+			}
+			res := NewCreateOneSubscriptionOK(&body)
+			return res, nil
+		case http.StatusBadRequest:
+			var (
+				body CreateOneSubscriptionFieldMissingResponseBody
+				err  error
+			)
+			err = decoder(resp).Decode(&body)
+			if err != nil {
+				return nil, goahttp.ErrDecodingError("subscription", "createOne", err)
+			}
+			err = ValidateCreateOneSubscriptionFieldMissingResponseBody(&body)
+			if err != nil {
+				return nil, goahttp.ErrValidationError("subscription", "createOne", err)
+			}
+			return nil, NewCreateOneSubscriptionFieldMissing(&body)
+		case http.StatusConflict:
+			var (
+				body CreateOneSubscriptionAlreadyExistsResponseBody
+				err  error
+			)
+			err = decoder(resp).Decode(&body)
+			if err != nil {
+				return nil, goahttp.ErrDecodingError("subscription", "createOne", err)
+			}
+			err = ValidateCreateOneSubscriptionAlreadyExistsResponseBody(&body)
+			if err != nil {
+				return nil, goahttp.ErrValidationError("subscription", "createOne", err)
+			}
+			return nil, NewCreateOneSubscriptionAlreadyExists(&body)
+		default:
+			body, _ := io.ReadAll(resp.Body)
+			return nil, goahttp.ErrInvalidResponse("subscription", "createOne", resp.StatusCode, string(body))
+		}
+	}
+}
+
 // unmarshalSubscriptionResponseToSubscriptionSubscription builds a value of
 // type *subscription.Subscription from a value of type *SubscriptionResponse.
 func unmarshalSubscriptionResponseToSubscriptionSubscription(v *SubscriptionResponse) *subscription.Subscription {
 	res := &subscription.Subscription{
-		UID:   *v.UID,
-		Email: *v.Email,
+		UID:   v.UID,
+		Email: v.Email,
 		Name:  v.Name,
 		Since: v.Since,
 	}

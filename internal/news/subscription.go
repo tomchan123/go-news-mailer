@@ -36,3 +36,9 @@ func (s *subscriptionsrvc) DeleteOneByUID(ctx context.Context, p string) (err er
 	s.logger.Print("subscription.deleteOneByUID")
 	return
 }
+
+// Create a new subscription
+func (s *subscriptionsrvc) CreateOne(context.Context, *subscription.SubscriptionCreateOnePayload) (res *subscription.Subscription, err error) {
+	s.logger.Print("subscription.CreateOne")
+	return
+}

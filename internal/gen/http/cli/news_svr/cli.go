@@ -23,7 +23,7 @@ import (
 //
 //	command (subcommand1|subcommand2|...)
 func UsageCommands() string {
-	return `subscription (get-all|get-one-by-uid|delete-one-by-uid)
+	return `subscription (get-all|get-one-by-uid|delete-one-by-uid|create-one)
 `
 }
 
@@ -52,11 +52,15 @@ func ParseEndpoint(
 
 		subscriptionDeleteOneByUIDFlags = flag.NewFlagSet("delete-one-by-uid", flag.ExitOnError)
 		subscriptionDeleteOneByUIDPFlag = subscriptionDeleteOneByUIDFlags.String("p", "REQUIRED", "UID of subscription")
+
+		subscriptionCreateOneFlags    = flag.NewFlagSet("create-one", flag.ExitOnError)
+		subscriptionCreateOneBodyFlag = subscriptionCreateOneFlags.String("body", "REQUIRED", "")
 	)
 	subscriptionFlags.Usage = subscriptionUsage
 	subscriptionGetAllFlags.Usage = subscriptionGetAllUsage
 	subscriptionGetOneByUIDFlags.Usage = subscriptionGetOneByUIDUsage
 	subscriptionDeleteOneByUIDFlags.Usage = subscriptionDeleteOneByUIDUsage
+	subscriptionCreateOneFlags.Usage = subscriptionCreateOneUsage
 
 	if err := flag.CommandLine.Parse(os.Args[1:]); err != nil {
 		return nil, nil, err
@@ -101,6 +105,9 @@ func ParseEndpoint(
 			case "delete-one-by-uid":
 				epf = subscriptionDeleteOneByUIDFlags
 
+			case "create-one":
+				epf = subscriptionCreateOneFlags
+
 			}
 
 		}
@@ -135,6 +142,9 @@ func ParseEndpoint(
 			case "delete-one-by-uid":
 				endpoint = c.DeleteOneByUID()
 				data = *subscriptionDeleteOneByUIDPFlag
+			case "create-one":
+				endpoint = c.CreateOne()
+				data, err = subscriptionc.BuildCreateOnePayload(*subscriptionCreateOneBodyFlag)
 			}
 		}
 	}
@@ -156,6 +166,7 @@ COMMAND:
     get-all: Get all subscriptions
     get-one-by-uid: Get a subscription by UID
     delete-one-by-uid: Delete a subscription by UID
+    create-one: Create a new subscription
 
 Additional help:
     %[1]s subscription COMMAND --help
@@ -178,7 +189,7 @@ Get a subscription by UID
     -p STRING: UID of subscription
 
 Example:
-    %[1]s subscription get-one-by-uid --p "Enim eum."
+    %[1]s subscription get-one-by-uid --p "abcd1234"
 `, os.Args[0])
 }
 
@@ -189,6 +200,22 @@ Delete a subscription by UID
     -p STRING: UID of subscription
 
 Example:
-    %[1]s subscription delete-one-by-uid --p "Natus sunt."
+    %[1]s subscription delete-one-by-uid --p "abcd1234"
+`, os.Args[0])
+}
+
+func subscriptionCreateOneUsage() {
+	fmt.Fprintf(os.Stderr, `%[1]s [flags] subscription create-one -body JSON
+
+Create a new subscription
+    -body JSON: 
+
+Example:
+    %[1]s subscription create-one --body '{
+      "email": "user@email.com",
+      "name": "John Doe",
+      "since": "2012-04-23T18:25:43.511Z",
+      "uid": "abcd1234"
+   }'
 `, os.Args[0])
 }

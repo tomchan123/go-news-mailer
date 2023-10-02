@@ -11,6 +11,7 @@ package server
 import (
 	"context"
 	"errors"
+	"io"
 	"net/http"
 
 	subscription "github.com/tomchan123/go-news-mailer/internal/gen/subscription"
@@ -134,6 +135,85 @@ func EncodeDeleteOneByUIDError(encoder func(context.Context, http.ResponseWriter
 			}
 			w.Header().Set("goa-error", res.GoaErrorName())
 			w.WriteHeader(http.StatusNotFound)
+			return enc.Encode(body)
+		default:
+			return encodeError(ctx, w, v)
+		}
+	}
+}
+
+// EncodeCreateOneResponse returns an encoder for responses returned by the
+// subscription createOne endpoint.
+func EncodeCreateOneResponse(encoder func(context.Context, http.ResponseWriter) goahttp.Encoder) func(context.Context, http.ResponseWriter, any) error {
+	return func(ctx context.Context, w http.ResponseWriter, v any) error {
+		res, _ := v.(*subscription.Subscription)
+		enc := encoder(ctx, w)
+		body := NewCreateOneResponseBody(res)
+		w.WriteHeader(http.StatusOK)
+		return enc.Encode(body)
+	}
+}
+
+// DecodeCreateOneRequest returns a decoder for requests sent to the
+// subscription createOne endpoint.
+func DecodeCreateOneRequest(mux goahttp.Muxer, decoder func(*http.Request) goahttp.Decoder) func(*http.Request) (any, error) {
+	return func(r *http.Request) (any, error) {
+		var (
+			body CreateOneRequestBody
+			err  error
+		)
+		err = decoder(r).Decode(&body)
+		if err != nil {
+			if err == io.EOF {
+				return nil, goa.MissingPayloadError()
+			}
+			return nil, goa.DecodePayloadError(err.Error())
+		}
+		err = ValidateCreateOneRequestBody(&body)
+		if err != nil {
+			return nil, err
+		}
+		payload := NewCreateOneSubscriptionCreateOnePayload(&body)
+
+		return payload, nil
+	}
+}
+
+// EncodeCreateOneError returns an encoder for errors returned by the createOne
+// subscription endpoint.
+func EncodeCreateOneError(encoder func(context.Context, http.ResponseWriter) goahttp.Encoder, formatter func(ctx context.Context, err error) goahttp.Statuser) func(context.Context, http.ResponseWriter, error) error {
+	encodeError := goahttp.ErrorEncoder(encoder, formatter)
+	return func(ctx context.Context, w http.ResponseWriter, v error) error {
+		var en goa.GoaErrorNamer
+		if !errors.As(v, &en) {
+			return encodeError(ctx, w, v)
+		}
+		switch en.GoaErrorName() {
+		case "SubscriptionFieldMissing":
+			var res *goa.ServiceError
+			errors.As(v, &res)
+			enc := encoder(ctx, w)
+			var body any
+			if formatter != nil {
+				body = formatter(ctx, res)
+			} else {
+				body = NewCreateOneSubscriptionFieldMissingResponseBody(res)
+			}
+			w.Header().Set("goa-error", res.GoaErrorName())
+			w.WriteHeader(http.StatusBadRequest)
+			return enc.Encode(body)
+		case "SubscriptionAlreadyExists":
+			var res *goa.ServiceError
+			errors.As(v, &res)
+			enc := encoder(ctx, w)
+			var body any
+			if formatter != nil {
+				body = formatter(ctx, res)
+			} else {
+				body = NewCreateOneSubscriptionAlreadyExistsResponseBody(res)
+			}
+			w.Header().Set("goa-error", res.GoaErrorName())
+			w.WriteHeader(http.StatusConflict)
 			return enc.Encode(body)
 		default:
 			return encodeError(ctx, w, v)

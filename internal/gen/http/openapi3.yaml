@@ -24,39 +24,64 @@ paths:
                                     $ref: '#/components/schemas/Subscription'
                                 description: A list of subscriptions
                                 example:
-                                    - email: Sed aut officia.
-                                      name: Voluptas fugiat pariatur accusamus.
-                                      since: Natus itaque ea.
-                                      uid: Nam eos rerum quos sint.
-                                    - email: Sed aut officia.
-                                      name: Voluptas fugiat pariatur accusamus.
-                                      since: Natus itaque ea.
-                                      uid: Nam eos rerum quos sint.
-                                    - email: Sed aut officia.
-                                      name: Voluptas fugiat pariatur accusamus.
-                                      since: Natus itaque ea.
-                                      uid: Nam eos rerum quos sint.
-                                    - email: Sed aut officia.
-                                      name: Voluptas fugiat pariatur accusamus.
-                                      since: Natus itaque ea.
-                                      uid: Nam eos rerum quos sint.
+                                    - email: user@email.com
+                                      name: John Doe
+                                      since: "2012-04-23T18:25:43.511Z"
+                                      uid: abcd1234
+                                    - email: user@email.com
+                                      name: John Doe
+                                      since: "2012-04-23T18:25:43.511Z"
+                                      uid: abcd1234
                             example:
-                                - email: Sed aut officia.
-                                  name: Voluptas fugiat pariatur accusamus.
-                                  since: Natus itaque ea.
-                                  uid: Nam eos rerum quos sint.
-                                - email: Sed aut officia.
-                                  name: Voluptas fugiat pariatur accusamus.
-                                  since: Natus itaque ea.
-                                  uid: Nam eos rerum quos sint.
-                                - email: Sed aut officia.
-                                  name: Voluptas fugiat pariatur accusamus.
-                                  since: Natus itaque ea.
-                                  uid: Nam eos rerum quos sint.
-                                - email: Sed aut officia.
-                                  name: Voluptas fugiat pariatur accusamus.
-                                  since: Natus itaque ea.
-                                  uid: Nam eos rerum quos sint.
+                                - email: user@email.com
+                                  name: John Doe
+                                  since: "2012-04-23T18:25:43.511Z"
+                                  uid: abcd1234
+                                - email: user@email.com
+                                  name: John Doe
+                                  since: "2012-04-23T18:25:43.511Z"
+                                  uid: abcd1234
+        post:
+            tags:
+                - subscription
+            summary: createOne subscription
+            description: Create a new subscription
+            operationId: subscription#createOne
+            requestBody:
+                required: true
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/CreateOneRequestBody'
+                        example:
+                            email: user@email.com
+                            name: John Doe
+                            since: "2012-04-23T18:25:43.511Z"
+                            uid: abcd1234
+            responses:
+                "200":
+                    description: OK response.
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Subscription'
+                            example:
+                                email: user@email.com
+                                name: John Doe
+                                since: "2012-04-23T18:25:43.511Z"
+                                uid: abcd1234
+                "400":
+                    description: 'SubscriptionFieldMissing: Error returned when the subscription has missing field(s)'
+                    content:
+                        application/vnd.goa.error:
+                            schema:
+                                $ref: '#/components/schemas/Error'
+                "409":
+                    description: 'SubscriptionAlreadyExists: Error returned when the subscription already exists'
+                    content:
+                        application/vnd.goa.error:
+                            schema:
+                                $ref: '#/components/schemas/Error'
     /subscription/{uid}:
         delete:
             tags:
@@ -72,8 +97,8 @@ paths:
                   schema:
                     type: string
                     description: UID of subscription
-                    example: Sint voluptatibus blanditiis et dolor.
-                  example: Numquam ut iusto commodi pariatur.
+                    example: abcd1234
+                  example: abcd1234
             responses:
                 "200":
                     description: OK response.
@@ -97,8 +122,8 @@ paths:
                   schema:
                     type: string
                     description: UID of subscription
-                    example: Ut doloremque saepe repellendus vitae.
-                  example: Corrupti numquam nisi a alias eos et.
+                    example: abcd1234
+                  example: abcd1234
             responses:
                 "200":
                     description: OK response.
@@ -107,10 +132,10 @@ paths:
                             schema:
                                 $ref: '#/components/schemas/Subscription'
                             example:
-                                email: Sapiente veniam quo est voluptates.
-                                name: Beatae sit quas natus.
-                                since: Dolores nulla.
-                                uid: Fuga dolorem accusantium nihil architecto porro et.
+                                email: user@email.com
+                                name: John Doe
+                                since: "2012-04-23T18:25:43.511Z"
+                                uid: abcd1234
                 "404":
                     description: 'SubscriptionNotFound: Error returned when the specified subscription does not exist'
                     content:
@@ -119,6 +144,33 @@ paths:
                                 $ref: '#/components/schemas/Error'
 components:
     schemas:
+        CreateOneRequestBody:
+            type: object
+            properties:
+                email:
+                    type: string
+                    description: Subscribed email
+                    example: user@email.com
+                name:
+                    type: string
+                    description: Name of the subscriber
+                    example: John Doe
+                since:
+                    type: string
+                    description: Datetime when the subscription was made
+                    example: "2012-04-23T18:25:43.511Z"
+                uid:
+                    type: string
+                    description: Unique identifier of subcription
+                    example: abcd1234
+            description: Subscription to be created
+            example:
+                email: user@email.com
+                name: John Doe
+                since: "2012-04-23T18:25:43.511Z"
+                uid: abcd1234
+            required:
+                - email
         Error:
             type: object
             properties:
@@ -148,12 +200,12 @@ components:
                     example: false
             description: Error returned when the specified subscription does not exist
             example:
-                fault: true
+                fault: false
                 id: 123abc
                 message: parameter 'p' must be an integer
                 name: bad_request
-                temporary: true
-                timeout: true
+                temporary: false
+                timeout: false
             required:
                 - name
                 - id
@@ -167,28 +219,25 @@ components:
                 email:
                     type: string
                     description: Subscribed email
-                    example: Qui sit.
+                    example: user@email.com
                 name:
                     type: string
                     description: Name of the subscriber
-                    example: Nemo aperiam.
+                    example: John Doe
                 since:
                     type: string
                     description: Datetime when the subscription was made
-                    example: Nulla maxime aliquam.
+                    example: "2012-04-23T18:25:43.511Z"
                 uid:
                     type: string
                     description: Unique identifier of subcription
-                    example: Ut ut ut placeat.
+                    example: abcd1234
             description: Representation of the subscription
             example:
-                email: Esse iure.
-                name: Sapiente optio.
-                since: Ipsum ut.
-                uid: Fugit qui.
-            required:
-                - uid
-                - email
+                email: user@email.com
+                name: John Doe
+                since: "2012-04-23T18:25:43.511Z"
+                uid: abcd1234
 tags:
     - name: subscription
       description: The subscription service provides ways to manage news subscription

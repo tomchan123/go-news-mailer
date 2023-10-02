@@ -26,6 +26,12 @@ var _ = Service("subscription", func() {
 	Error("SubscriptionNotFound", func() {
 		Description("Error returned when the specified subscription does not exist")
 	})
+	Error("SubscriptionFieldMissing", func() {
+		Description("Error returned when the subscription has missing field(s)")
+	})
+	Error("SubscriptionAlreadyExists", func() {
+		Description("Error returned when the subscription already exists")
+	})
 
 	Method("getAll", func() {
 		Description("Get all subscriptions")
@@ -42,7 +48,9 @@ var _ = Service("subscription", func() {
 	Method("getOneByUID", func() {
 		Description("Get a subscription by UID")
 
-		Payload(String, "UID of subscription")
+		Payload(String, "UID of subscription", func() {
+			Example("abcd1234")
+		})
 		Result(TSubscription, "A subscription with the same UID")
 
 		HTTP(func() {
@@ -56,7 +64,9 @@ var _ = Service("subscription", func() {
 	Method("deleteOneByUID", func() {
 		Description("Delete a subscription by UID")
 
-		Payload(String, "UID of subscription")
+		Payload(String, "UID of subscription", func() {
+			Example("abcd1234")
+		})
 		Result(Empty)
 
 		HTTP(func() {
@@ -64,6 +74,23 @@ var _ = Service("subscription", func() {
 
 			Response(StatusOK)
 			Response("SubscriptionNotFound", StatusNotFound)
+		})
+	})
+
+	Method("createOne", func() {
+		Description("Create a new subscription")
+
+		Payload(TSubscription, "Subscription to be created", func() {
+			Required("email")
+		})
+		Result(TSubscription, "Created subscription")
+
+		HTTP(func() {
+			POST("")
+
+			Response(StatusOK)
+			Response("SubscriptionFieldMissing", StatusBadRequest)
+			Response("SubscriptionAlreadyExists", StatusConflict)
 		})
 	})
 

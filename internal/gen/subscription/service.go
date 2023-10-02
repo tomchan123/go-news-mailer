@@ -22,6 +22,8 @@ type Service interface {
 	GetOneByUID(context.Context, string) (res *Subscription, err error)
 	// Delete a subscription by UID
 	DeleteOneByUID(context.Context, string) (err error)
+	// Create a new subscription
+	CreateOne(context.Context, *SubscriptionCreateOnePayload) (res *Subscription, err error)
 }
 
 // ServiceName is the name of the service as defined in the design. This is the
@@ -32,12 +34,24 @@ const ServiceName = "subscription"
 // MethodNames lists the service method names as defined in the design. These
 // are the same values that are set in the endpoint request contexts under the
 // MethodKey key.
-var MethodNames = [3]string{"getAll", "getOneByUID", "deleteOneByUID"}
+var MethodNames = [4]string{"getAll", "getOneByUID", "deleteOneByUID", "createOne"}
 
 // A subscription with the same UID
 type Subscription struct {
 	// Unique identifier of subcription
-	UID string
+	UID *string
+	// Subscribed email
+	Email *string
+	// Name of the subscriber
+	Name *string
+	// Datetime when the subscription was made
+	Since *string
+}
+
+// Subscription to be created
+type SubscriptionCreateOnePayload struct {
+	// Unique identifier of subcription
+	UID *string
 	// Subscribed email
 	Email string
 	// Name of the subscriber
@@ -49,4 +63,14 @@ type Subscription struct {
 // MakeSubscriptionNotFound builds a goa.ServiceError from an error.
 func MakeSubscriptionNotFound(err error) *goa.ServiceError {
 	return goa.NewServiceError(err, "SubscriptionNotFound", false, false, false)
+}
+
+// MakeSubscriptionFieldMissing builds a goa.ServiceError from an error.
+func MakeSubscriptionFieldMissing(err error) *goa.ServiceError {
+	return goa.NewServiceError(err, "SubscriptionFieldMissing", false, false, false)
+}
+
+// MakeSubscriptionAlreadyExists builds a goa.ServiceError from an error.
+func MakeSubscriptionAlreadyExists(err error) *goa.ServiceError {
+	return goa.NewServiceError(err, "SubscriptionAlreadyExists", false, false, false)
 }
