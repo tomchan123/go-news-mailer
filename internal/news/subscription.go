@@ -40,7 +40,7 @@ func (s *subscriptionsrvc) GetOneByUID(ctx context.Context, p string) (res *subs
 		err = subscription.MakeServerError(fmt.Errorf("server error: %v", err)) // development
 		return
 	} else if res == nil {
-		err = fmt.Errorf("subscription not found: %v", p)
+		err = subscription.MakeSubscriptionNotFound(fmt.Errorf("subscription not found: %v", p))
 		return
 	}
 
