@@ -1,0 +1,4 @@
+brew services start mongodb-community@7.0
+brew services stop mongodb-community@7.0
+
+go run github.com/tomchan123/go-news-mailer/cmd/news_svr
