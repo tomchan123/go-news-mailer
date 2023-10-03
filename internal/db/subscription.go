@@ -47,24 +47,40 @@ func (m *Mongodb) GetAllSubscriptions() ([]*Subscription, error) {
 	return subs, nil
 }
 
-func (m *Mongodb) GetOneSubscription(uid string) (*Subscription, error) {
-	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
-	defer cancel()
-
+func (m *Mongodb) GetOneSubscriptionByUid(uid string) (*Subscription, error) {
 	oid, err := convertObjectId(uid)
 	if err != nil {
-		return nil, fmt.Errorf("get one subscription failed: %v", err)
+		return nil, fmt.Errorf("get one subscription by uid failed: %v", err)
 	}
 
-	var res Subscription
-	err = m.subscriptions().FindOne(ctx, bson.M{"_id": *oid}).Decode(&res)
+	res, err := m.getOneSubscriptionByFilter(bson.M{"_id": *oid})
 	if err == mongo.ErrNoDocuments {
 		return nil, nil
 	} else if err != nil {
-		return nil, fmt.Errorf("get one subscription failed: %v", err)
+		return nil, fmt.Errorf("get one subscription by uid failed: %v", err)
 	}
 
-	return &res, nil
+	return res, nil
+}
+
+func (m *Mongodb) GetOneSubscriptionByEmail(e string) (*Subscription, error) {
+	res, err := m.getOneSubscriptionByFilter(bson.M{"email": e})
+	if err == mongo.ErrNoDocuments {
+		return nil, nil
+	} else if err != nil {
+		return nil, fmt.Errorf("get one subscription by email failed: %v", err)
+	}
+
+	return res, nil
+}
+
+func (m *Mongodb) getOneSubscriptionByFilter(f interface{}) (*Subscription, error) {
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+
+	var res Subscription
+	err := m.subscriptions().FindOne(ctx, f).Decode(&res)
+	return &res, err
 }
 
 // return the number of documents deleted
@@ -81,14 +97,33 @@ func (m *Mongodb) DeleteOneSubscription(uid string) (int, error) {
 
 	res, err := m.subscriptions().DeleteOne(ctx, bson.M{"_id": *oid})
 	if err != nil {
-		return -1, fmt.Errorf("delete one subscription failed %v", err)
+		return -1, fmt.Errorf("delete one subscription failed: %v", err)
 	}
 
 	return int(res.DeletedCount), nil
 }
 
-func (m *Mongodb) CreateOneSubscription(s *Subscription) {
+func (m *Mongodb) CreateOneSubscription(s *Subscription) (*Subscription, error) {
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
 
+	var cs Subscription = *s
+	cs.CreatedAt = time.Now()
+	res, err := m.subscriptions().InsertOne(ctx, bson.D{
+		{"name", cs.Name},
+		{"email", cs.Email},
+		{"createdAt", cs.CreatedAt},
+	})
+	if err != nil {
+		return nil, fmt.Errorf("create one subscription failed: %v", err)
+	}
+	uid, ok := res.InsertedID.(primitive.ObjectID)
+	if !ok {
+		return nil, fmt.Errorf("create one subscription failed: cannot convert inserted id")
+	}
+	cs.Uid = uid
+
+	return &cs, nil
 }
 
 // convert id string to ObjectId

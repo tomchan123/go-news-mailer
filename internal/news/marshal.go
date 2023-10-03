@@ -30,3 +30,14 @@ func MarshalSubscriptions(ss []*db.Subscription) []*subscription.Subscription {
 	}
 	return mss
 }
+
+func UnmarsharlSubscription(ms *subscription.SubscriptionCreateOnePayload) *db.Subscription {
+	s := db.Subscription{}
+
+	s.Email = ms.Email
+	if ms.Name != nil {
+		s.Name = *ms.Name
+	}
+
+	return &s
+}
