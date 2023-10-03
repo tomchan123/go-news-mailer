@@ -1,4 +1,4 @@
 db.subscriptions.insertMany([
-    {Uid: "123", Name: "John Doe", Email:"johndoe@gmail.com", Since: "2023"},
-    {Uid: "456", Name: "Jane Deer", Email:"janedeer@gmail.com", Since: "2022"}
+    {name: "John Doe", email:"johndoe@gmail.com", createdAt: new Date()},
+    {name: "Jane Deer", email:"janedeer@gmail.com", createdAt: new Date()}
 ])
