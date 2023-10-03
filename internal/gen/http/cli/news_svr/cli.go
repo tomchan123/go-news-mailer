@@ -212,9 +212,9 @@ Create a new subscription
 
 Example:
     %[1]s subscription create-one --body '{
+      "createdAt": "2012-04-23T18:25:43.511Z",
       "email": "user@email.com",
       "name": "John Doe",
-      "since": "2012-04-23T18:25:43.511Z",
       "uid": "abcd1234"
    }'
 `, os.Args[0])

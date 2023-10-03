@@ -293,10 +293,10 @@ func EncodeCreateOneError(encoder func(context.Context, http.ResponseWriter) goa
 // *SubscriptionResponse from a value of type *subscription.Subscription.
 func marshalSubscriptionSubscriptionToSubscriptionResponse(v *subscription.Subscription) *SubscriptionResponse {
 	res := &SubscriptionResponse{
-		UID:   v.UID,
-		Email: v.Email,
-		Name:  v.Name,
-		Since: v.Since,
+		UID:       v.UID,
+		Email:     v.Email,
+		Name:      v.Name,
+		CreatedAt: v.CreatedAt,
 	}
 
 	return res

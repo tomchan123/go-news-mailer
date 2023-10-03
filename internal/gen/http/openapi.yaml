@@ -125,6 +125,10 @@ definitions:
         title: SubscriptionCreateOneRequestBody
         type: object
         properties:
+            createdAt:
+                type: string
+                description: Datetime when the subscription was made
+                example: "2012-04-23T18:25:43.511Z"
             email:
                 type: string
                 description: Subscribed email
@@ -133,19 +137,15 @@ definitions:
                 type: string
                 description: Name of the subscriber
                 example: John Doe
-            since:
-                type: string
-                description: Datetime when the subscription was made
-                example: "2012-04-23T18:25:43.511Z"
             uid:
                 type: string
                 description: Unique identifier of subcription
                 example: abcd1234
         description: Subscription to be created
         example:
+            createdAt: "2012-04-23T18:25:43.511Z"
             email: user@email.com
             name: John Doe
-            since: "2012-04-23T18:25:43.511Z"
             uid: abcd1234
         required:
             - email
@@ -153,6 +153,10 @@ definitions:
         title: SubscriptionCreateOneResponseBody
         type: object
         properties:
+            createdAt:
+                type: string
+                description: Datetime when the subscription was made
+                example: "2012-04-23T18:25:43.511Z"
             email:
                 type: string
                 description: Subscribed email
@@ -161,19 +165,15 @@ definitions:
                 type: string
                 description: Name of the subscriber
                 example: John Doe
-            since:
-                type: string
-                description: Datetime when the subscription was made
-                example: "2012-04-23T18:25:43.511Z"
             uid:
                 type: string
                 description: Unique identifier of subcription
                 example: abcd1234
         description: Created subscription
         example:
+            createdAt: "2012-04-23T18:25:43.511Z"
             email: user@email.com
             name: John Doe
-            since: "2012-04-23T18:25:43.511Z"
             uid: abcd1234
     SubscriptionCreateOneServerErrorResponseBody:
         title: 'Mediatype identifier: application/vnd.goa.error; view=default'
@@ -437,6 +437,10 @@ definitions:
         title: SubscriptionGetOneByUIDResponseBody
         type: object
         properties:
+            createdAt:
+                type: string
+                description: Datetime when the subscription was made
+                example: "2012-04-23T18:25:43.511Z"
             email:
                 type: string
                 description: Subscribed email
@@ -445,19 +449,15 @@ definitions:
                 type: string
                 description: Name of the subscriber
                 example: John Doe
-            since:
-                type: string
-                description: Datetime when the subscription was made
-                example: "2012-04-23T18:25:43.511Z"
             uid:
                 type: string
                 description: Unique identifier of subcription
                 example: abcd1234
         description: A subscription with the same UID
         example:
+            createdAt: "2012-04-23T18:25:43.511Z"
             email: user@email.com
             name: John Doe
-            since: "2012-04-23T18:25:43.511Z"
             uid: abcd1234
     SubscriptionGetOneByUIDServerErrorResponseBody:
         title: 'Mediatype identifier: application/vnd.goa.error; view=default'
@@ -549,6 +549,10 @@ definitions:
         title: SubscriptionResponse
         type: object
         properties:
+            createdAt:
+                type: string
+                description: Datetime when the subscription was made
+                example: "2012-04-23T18:25:43.511Z"
             email:
                 type: string
                 description: Subscribed email
@@ -557,17 +561,13 @@ definitions:
                 type: string
                 description: Name of the subscriber
                 example: John Doe
-            since:
-                type: string
-                description: Datetime when the subscription was made
-                example: "2012-04-23T18:25:43.511Z"
             uid:
                 type: string
                 description: Unique identifier of subcription
                 example: abcd1234
         description: Representation of the subscription
         example:
+            createdAt: "2012-04-23T18:25:43.511Z"
             email: user@email.com
             name: John Doe
-            since: "2012-04-23T18:25:43.511Z"
             uid: abcd1234

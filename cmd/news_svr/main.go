@@ -12,8 +12,8 @@ import (
 	"sync"
 	"syscall"
 
+	db "github.com/tomchan123/go-news-mailer/internal/db"
 	subscription "github.com/tomchan123/go-news-mailer/internal/gen/subscription"
-	db "github.com/tomchan123/go-news-mailer/internal/mongodb"
 	news "github.com/tomchan123/go-news-mailer/internal/news"
 )
 

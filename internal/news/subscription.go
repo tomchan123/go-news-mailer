@@ -5,8 +5,8 @@ import (
 	"fmt"
 	"log"
 
+	db "github.com/tomchan123/go-news-mailer/internal/db"
 	subscription "github.com/tomchan123/go-news-mailer/internal/gen/subscription"
-	db "github.com/tomchan123/go-news-mailer/internal/mongodb"
 )
 
 // subscription service example implementation.
@@ -23,34 +23,50 @@ func NewSubscription(logger *log.Logger, db *db.Mongodb) subscription.Service {
 
 // Get all subscriptions
 func (s *subscriptionsrvc) GetAll(ctx context.Context) (res []*subscription.Subscription, err error) {
-	res, err = s.db.GetAllSubscriptions()
+	s.logger.Print("subscription.getAll")
+
+	subs, err := s.db.GetAllSubscriptions()
 	if err != nil {
 		err = subscription.MakeServerError(fmt.Errorf("server error: %v", err)) // development
 		return
 	}
 
-	s.logger.Print("subscription.getAll")
+	res = MarshalSubscriptions(subs)
 	return
 }
 
 // Get a subscription by UID
 func (s *subscriptionsrvc) GetOneByUID(ctx context.Context, p string) (res *subscription.Subscription, err error) {
-	res, err = s.db.GetOneSubscription(p)
+	s.logger.Print("subscription.getOneByUID")
+
+	sub, err := s.db.GetOneSubscription(p)
 	if err != nil {
 		err = subscription.MakeServerError(fmt.Errorf("server error: %v", err)) // development
 		return
-	} else if res == nil {
+	} else if sub == nil {
 		err = subscription.MakeSubscriptionNotFound(fmt.Errorf("subscription not found: %v", p))
 		return
 	}
 
-	s.logger.Print("subscription.getOneByUID")
+	res = MarshalSubscription(sub)
+
 	return
 }
 
 // Delete a subscription by UID
 func (s *subscriptionsrvc) DeleteOneByUID(ctx context.Context, p string) (err error) {
 	s.logger.Print("subscription.deleteOneByUID")
+
+	dc, err := s.db.DeleteOneSubscription(p)
+	if err != nil {
+		err = subscription.MakeServerError(fmt.Errorf("server error: %v", err)) // development
+		return
+	}
+	if dc <= 0 {
+		err = subscription.MakeSubscriptionNotFound(fmt.Errorf("subscription not found: %v", p))
+		return
+	}
+
 	return
 }
 

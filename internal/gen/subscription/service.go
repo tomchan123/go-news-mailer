@@ -45,7 +45,7 @@ type Subscription struct {
 	// Name of the subscriber
 	Name *string
 	// Datetime when the subscription was made
-	Since *string
+	CreatedAt *string
 }
 
 // Subscription to be created
@@ -57,7 +57,7 @@ type SubscriptionCreateOnePayload struct {
 	// Name of the subscriber
 	Name *string
 	// Datetime when the subscription was made
-	Since *string
+	CreatedAt *string
 }
 
 // MakeServerError builds a goa.ServiceError from an error.

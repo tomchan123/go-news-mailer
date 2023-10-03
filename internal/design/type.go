@@ -16,7 +16,7 @@ var TSubscription = Type("Subscription", func() {
 	Attribute("name", String, "Name of the subscriber", func() {
 		Example("John Doe")
 	})
-	Attribute("since", String, "Datetime when the subscription was made", func() {
+	Attribute("createdAt", String, "Datetime when the subscription was made", func() {
 		Example("2012-04-23T18:25:43.511Z")
 	})
 })

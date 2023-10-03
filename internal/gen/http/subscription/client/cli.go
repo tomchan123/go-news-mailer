@@ -23,14 +23,14 @@ func BuildCreateOnePayload(subscriptionCreateOneBody string) (*subscription.Subs
 	{
 		err = json.Unmarshal([]byte(subscriptionCreateOneBody), &body)
 		if err != nil {
-			return nil, fmt.Errorf("invalid JSON for body, \nerror: %s, \nexample of valid JSON:\n%s", err, "'{\n      \"email\": \"user@email.com\",\n      \"name\": \"John Doe\",\n      \"since\": \"2012-04-23T18:25:43.511Z\",\n      \"uid\": \"abcd1234\"\n   }'")
+			return nil, fmt.Errorf("invalid JSON for body, \nerror: %s, \nexample of valid JSON:\n%s", err, "'{\n      \"createdAt\": \"2012-04-23T18:25:43.511Z\",\n      \"email\": \"user@email.com\",\n      \"name\": \"John Doe\",\n      \"uid\": \"abcd1234\"\n   }'")
 		}
 	}
 	v := &subscription.SubscriptionCreateOnePayload{
-		UID:   body.UID,
-		Email: body.Email,
-		Name:  body.Name,
-		Since: body.Since,
+		UID:       body.UID,
+		Email:     body.Email,
+		Name:      body.Name,
+		CreatedAt: body.CreatedAt,
 	}
 
 	return v, nil

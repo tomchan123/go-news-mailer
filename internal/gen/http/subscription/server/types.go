@@ -23,7 +23,7 @@ type CreateOneRequestBody struct {
 	// Name of the subscriber
 	Name *string `form:"name,omitempty" json:"name,omitempty" xml:"name,omitempty"`
 	// Datetime when the subscription was made
-	Since *string `form:"since,omitempty" json:"since,omitempty" xml:"since,omitempty"`
+	CreatedAt *string `form:"createdAt,omitempty" json:"createdAt,omitempty" xml:"createdAt,omitempty"`
 }
 
 // GetAllResponseBody is the type of the "subscription" service "getAll"
@@ -40,7 +40,7 @@ type GetOneByUIDResponseBody struct {
 	// Name of the subscriber
 	Name *string `form:"name,omitempty" json:"name,omitempty" xml:"name,omitempty"`
 	// Datetime when the subscription was made
-	Since *string `form:"since,omitempty" json:"since,omitempty" xml:"since,omitempty"`
+	CreatedAt *string `form:"createdAt,omitempty" json:"createdAt,omitempty" xml:"createdAt,omitempty"`
 }
 
 // CreateOneResponseBody is the type of the "subscription" service "createOne"
@@ -53,7 +53,7 @@ type CreateOneResponseBody struct {
 	// Name of the subscriber
 	Name *string `form:"name,omitempty" json:"name,omitempty" xml:"name,omitempty"`
 	// Datetime when the subscription was made
-	Since *string `form:"since,omitempty" json:"since,omitempty" xml:"since,omitempty"`
+	CreatedAt *string `form:"createdAt,omitempty" json:"createdAt,omitempty" xml:"createdAt,omitempty"`
 }
 
 // GetAllServerErrorResponseBody is the type of the "subscription" service
@@ -214,7 +214,7 @@ type SubscriptionResponse struct {
 	// Name of the subscriber
 	Name *string `form:"name,omitempty" json:"name,omitempty" xml:"name,omitempty"`
 	// Datetime when the subscription was made
-	Since *string `form:"since,omitempty" json:"since,omitempty" xml:"since,omitempty"`
+	CreatedAt *string `form:"createdAt,omitempty" json:"createdAt,omitempty" xml:"createdAt,omitempty"`
 }
 
 // NewGetAllResponseBody builds the HTTP response body from the result of the
@@ -231,10 +231,10 @@ func NewGetAllResponseBody(res []*subscription.Subscription) GetAllResponseBody 
 // the "getOneByUID" endpoint of the "subscription" service.
 func NewGetOneByUIDResponseBody(res *subscription.Subscription) *GetOneByUIDResponseBody {
 	body := &GetOneByUIDResponseBody{
-		UID:   res.UID,
-		Email: res.Email,
-		Name:  res.Name,
-		Since: res.Since,
+		UID:       res.UID,
+		Email:     res.Email,
+		Name:      res.Name,
+		CreatedAt: res.CreatedAt,
 	}
 	return body
 }
@@ -243,10 +243,10 @@ func NewGetOneByUIDResponseBody(res *subscription.Subscription) *GetOneByUIDResp
 // the "createOne" endpoint of the "subscription" service.
 func NewCreateOneResponseBody(res *subscription.Subscription) *CreateOneResponseBody {
 	body := &CreateOneResponseBody{
-		UID:   res.UID,
-		Email: res.Email,
-		Name:  res.Name,
-		Since: res.Since,
+		UID:       res.UID,
+		Email:     res.Email,
+		Name:      res.Name,
+		CreatedAt: res.CreatedAt,
 	}
 	return body
 }
@@ -370,10 +370,10 @@ func NewCreateOneServerErrorResponseBody(res *goa.ServiceError) *CreateOneServer
 // createOne endpoint payload.
 func NewCreateOneSubscriptionCreateOnePayload(body *CreateOneRequestBody) *subscription.SubscriptionCreateOnePayload {
 	v := &subscription.SubscriptionCreateOnePayload{
-		UID:   body.UID,
-		Email: *body.Email,
-		Name:  body.Name,
-		Since: body.Since,
+		UID:       body.UID,
+		Email:     *body.Email,
+		Name:      body.Name,
+		CreatedAt: body.CreatedAt,
 	}
 
 	return v

@@ -382,10 +382,10 @@ func DecodeCreateOneResponse(decoder func(*http.Response) goahttp.Decoder, resto
 // type *subscription.Subscription from a value of type *SubscriptionResponse.
 func unmarshalSubscriptionResponseToSubscriptionSubscription(v *SubscriptionResponse) *subscription.Subscription {
 	res := &subscription.Subscription{
-		UID:   v.UID,
-		Email: v.Email,
-		Name:  v.Name,
-		Since: v.Since,
+		UID:       v.UID,
+		Email:     v.Email,
+		Name:      v.Name,
+		CreatedAt: v.CreatedAt,
 	}
 
 	return res
