@@ -27,7 +27,7 @@ type NewsAritcle struct {
 func CreateNewsServer() *NewsServer {
 	return &NewsServer{
 		"pub_30538d32bff31cca76612ea8c3dca77f9c323",
-		"https://newsdata.io/api/1/news",
+		"https://newsdata.io/api/1",
 	}
 }
 
@@ -40,20 +40,19 @@ func CreateNewsArticle() *NewsAritcle {
 
 // fetch top n headlines
 func (ns *NewsServer) FetchRecentArticles(n int, t int) ([]*NewsAritcle, error) {
-	url := fmt.Sprintf("%s?language=en&timeframe=%d&image=1&full_content=1", ns.ApiEndpoint, t)
+	url := fmt.Sprintf("/news%s?language=en&timeframe=%d&image=1&full_content=1", ns.ApiEndpoint, t)
 
 	nas, err := ns.getArticlesAPIRequest(url)
 	if err != nil {
 		return nil, fmt.Errorf("NewsServer.FetchRecentArticles: %v", err)
 	}
 
-	if t < len(nas) {
-		nas = nas[:t]
-	}
-
 	gpts := CreateGPTServer()
 	for _, na := range nas {
-		na.AISummary = gpts.CCSummarise(na.Content)
+		s, err := gpts.ChatSummarise(na.Content)
+		if err == nil {
+			na.AISummary = s
+		}
 	}
 
 	return nas, nil
