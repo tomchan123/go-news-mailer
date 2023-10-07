@@ -9,6 +9,8 @@ import (
 	"sync"
 	"time"
 
+	"github.com/tomchan123/go-news-mailer/internal/gen/email"
+	emailsvr "github.com/tomchan123/go-news-mailer/internal/gen/http/email/server"
 	subscriptionsvr "github.com/tomchan123/go-news-mailer/internal/gen/http/subscription/server"
 	subscription "github.com/tomchan123/go-news-mailer/internal/gen/subscription"
 	goahttp "goa.design/goa/v3/http"
@@ -18,7 +20,7 @@ import (
 
 // handleHTTPServer starts configures and starts a HTTP server on the given
 // URL. It shuts down the server if any error is received in the error channel.
-func handleHTTPServer(ctx context.Context, u *url.URL, subscriptionEndpoints *subscription.Endpoints, wg *sync.WaitGroup, errc chan error, logger *log.Logger, debug bool) {
+func handleHTTPServer(ctx context.Context, u *url.URL, subscriptionEndpoints *subscription.Endpoints, emailEndpoints *email.Endpoints, wg *sync.WaitGroup, errc chan error, logger *log.Logger, debug bool) {
 
 	// Setup goa log adapter.
 	var (
@@ -50,19 +52,23 @@ func handleHTTPServer(ctx context.Context, u *url.URL, subscriptionEndpoints *su
 	// responses.
 	var (
 		subscriptionServer *subscriptionsvr.Server
+		emailServer        *emailsvr.Server
 	)
 	{
 		eh := errorHandler(logger)
 		subscriptionServer = subscriptionsvr.New(subscriptionEndpoints, mux, dec, enc, eh, nil)
+		emailServer = emailsvr.New(emailEndpoints, mux, dec, enc, eh, nil)
 		if debug {
 			servers := goahttp.Servers{
 				subscriptionServer,
+				emailServer,
 			}
 			servers.Use(httpmdlwr.Debug(mux, os.Stdout))
 		}
 	}
 	// Configure the mux.
 	subscriptionsvr.Mount(mux, subscriptionServer)
+	emailsvr.Mount(mux, emailServer)
 
 	// Wrap the multiplexer with additional middlewares. Middlewares mounted
 	// here apply to all the service endpoints.
@@ -76,6 +82,9 @@ func handleHTTPServer(ctx context.Context, u *url.URL, subscriptionEndpoints *su
 	// configure the server as required by your service.
 	srv := &http.Server{Addr: u.Host, Handler: handler, ReadHeaderTimeout: time.Second * 60}
 	for _, m := range subscriptionServer.Mounts {
+		logger.Printf("HTTP %q mounted on %s %s", m.Method, m.Verb, m.Pattern)
+	}
+	for _, m := range emailServer.Mounts {
 		logger.Printf("HTTP %q mounted on %s %s", m.Method, m.Verb, m.Pattern)
 	}
 

@@ -13,7 +13,9 @@ import (
 	"syscall"
 
 	db "github.com/tomchan123/go-news-mailer/internal/db"
+	"github.com/tomchan123/go-news-mailer/internal/gen/email"
 	subscription "github.com/tomchan123/go-news-mailer/internal/gen/subscription"
+	"github.com/tomchan123/go-news-mailer/internal/mailer"
 	news "github.com/tomchan123/go-news-mailer/internal/news"
 )
 
@@ -50,21 +52,41 @@ func main() {
 		defer d()
 	}
 
+	// Setup News Server
+	var (
+		ns *mailer.NewsServer
+	)
+	{
+		ns = mailer.CreateNewsServer()
+	}
+
+	// Setup Mail Server
+	var (
+		ms *mailer.MailServer
+	)
+	{
+		ms = mailer.CreateMailer(dbx, ns)
+	}
+
 	// Initialize the services.
 	var (
 		subscriptionSvc subscription.Service
+		emailSvc        email.Service
 	)
 	{
 		subscriptionSvc = news.NewSubscription(logger, dbx)
+		emailSvc = news.NewEmail(logger, ms)
 	}
 
 	// Wrap the services in endpoints that can be invoked from other services
 	// potentially running in different processes.
 	var (
 		subscriptionEndpoints *subscription.Endpoints
+		emailEndpoints        *email.Endpoints
 	)
 	{
 		subscriptionEndpoints = subscription.NewEndpoints(subscriptionSvc)
+		emailEndpoints = email.NewEndpoints(emailSvc)
 	}
 
 	// Create channel used by both the signal handler and server goroutines
@@ -106,7 +128,7 @@ func main() {
 			} else if u.Port() == "" {
 				u.Host = net.JoinHostPort(u.Host, "80")
 			}
-			handleHTTPServer(ctx, u, subscriptionEndpoints, &wg, errc, logger, *dbgF)
+			handleHTTPServer(ctx, u, subscriptionEndpoints, emailEndpoints, &wg, errc, logger, *dbgF)
 		}
 
 	default:

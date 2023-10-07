@@ -40,11 +40,15 @@ func CreateNewsArticle() *NewsAritcle {
 
 // fetch top n headlines
 func (ns *NewsServer) FetchRecentArticles(n int, t int) ([]*NewsAritcle, error) {
-	url := fmt.Sprintf("/news%s?language=en&timeframe=%d&image=1&full_content=1", ns.ApiEndpoint, t)
+	url := fmt.Sprintf("%s/news?language=en&timeframe=%d&image=1&full_content=1", ns.ApiEndpoint, t)
 
 	nas, err := ns.getArticlesAPIRequest(url)
 	if err != nil {
 		return nil, fmt.Errorf("NewsServer.FetchRecentArticles: %v", err)
+	}
+
+	if len(nas) > n {
+		nas = nas[:n]
 	}
 
 	gpts := CreateGPTServer()
