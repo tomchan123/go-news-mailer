@@ -66,6 +66,7 @@ func main() {
 	)
 	{
 		ms = mailer.CreateMailer(dbx, ns)
+		go ms.Start()
 	}
 
 	// Initialize the services.

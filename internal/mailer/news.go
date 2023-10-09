@@ -6,22 +6,13 @@ import (
 	"io"
 	"net/http"
 	"time"
+
+	"github.com/tomchan123/go-news-mailer/internal/db"
 )
 
 type NewsServer struct {
 	ApiKey      string
 	ApiEndpoint string
-}
-
-type NewsAritcle struct {
-	Source      string
-	Title       string
-	Authors     []string
-	Content     string
-	AISummary   string
-	Url         string
-	ImgUrl      string
-	PublishedAt time.Time
 }
 
 func CreateNewsServer() *NewsServer {
@@ -31,15 +22,15 @@ func CreateNewsServer() *NewsServer {
 	}
 }
 
-func CreateNewsArticle() *NewsAritcle {
-	return &NewsAritcle{
+func CreateNewsArticle() *db.NewsAritcle {
+	return &db.NewsAritcle{
 		Authors:     make([]string, 0),
 		PublishedAt: time.Now(),
 	}
 }
 
 // fetch top n headlines
-func (ns *NewsServer) FetchRecentArticles(n int, t int) ([]*NewsAritcle, error) {
+func (ns *NewsServer) FetchRecentArticles(n int, t int) ([]*db.NewsAritcle, error) {
 	url := fmt.Sprintf("%s/news?language=en&timeframe=%d&image=1&full_content=1", ns.ApiEndpoint, t)
 
 	nas, err := ns.getArticlesAPIRequest(url)
@@ -62,7 +53,7 @@ func (ns *NewsServer) FetchRecentArticles(n int, t int) ([]*NewsAritcle, error) 
 	return nas, nil
 }
 
-func (ns *NewsServer) getArticlesAPIRequest(url string) ([]*NewsAritcle, error) {
+func (ns *NewsServer) getArticlesAPIRequest(url string) ([]*db.NewsAritcle, error) {
 	req, err := http.NewRequest(http.MethodGet, url, nil)
 	if err != nil {
 		return nil, fmt.Errorf("NewsServer.getArticlesAPIRequest: %v", err)
@@ -90,14 +81,14 @@ func (ns *NewsServer) getArticlesAPIRequest(url string) ([]*NewsAritcle, error) 
 	return arts, nil
 }
 
-func (ns *NewsServer) marshalArticles(bs []byte) ([]*NewsAritcle, error) {
+func (ns *NewsServer) marshalArticles(bs []byte) ([]*db.NewsAritcle, error) {
 	var d map[string]interface{}
 	err := json.Unmarshal(bs, &d)
 	if err != nil {
 		return nil, fmt.Errorf("NewsServer.marshalArticles: %v", err)
 	}
 
-	var nas []*NewsAritcle
+	var nas []*db.NewsAritcle
 	r := d["results"].([]interface{})
 	for _, v := range r {
 		nr := v.(map[string]interface{})
