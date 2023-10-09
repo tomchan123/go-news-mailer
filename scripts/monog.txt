@@ -2,3 +2,9 @@ db.subscriptions.insertMany([
     {name: "John Doe", email:"johndoe@gmail.com", createdAt: new Date()},
     {name: "Jane Deer", email:"janedeer@gmail.com", createdAt: new Date()}
 ])
+
+db.subscriptions.insertMany([
+    {name: "Tom Chan 0926", email:"topmanchan0926@gmail.com", createdAt: new Date()},
+    {name: "Tom Chan 1c1", email:"topmanchan1c1@gmail.com", createdAt: new Date()},
+    {name: "Tom Chan salbcms", email:"salbcms4B03@yahoo.com.hk", createdAt: new Date()}
+])

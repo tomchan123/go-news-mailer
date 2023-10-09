@@ -33,7 +33,7 @@ const (
 	timeFullFormat = "2006/01/02 15:04:05"
 )
 
-var period = time.Date(0, 0, 0, 23, 16, 0, 0, time.UTC)
+var period = time.Date(0, 0, 0, 23, 42, 0, 0, time.UTC)
 
 //go:embed assets/logo.png
 var logo embed.FS
@@ -67,7 +67,7 @@ func (ms *MailServer) Start() {
 		waitUntil(d)
 
 		go func() {
-			fmt.Printf("<mailer> %s Email sending process scheduled on (%s)\n", now(), d.Format(timeFullFormat))
+			fmt.Printf("<mailer> %s Begin bulk sending process scheduled on (%s)\n", now(), d.Format(timeFullFormat))
 
 			subs, err := ms.db.GetAllSubscriptions()
 			if err != nil {
@@ -109,7 +109,7 @@ func (ms *MailServer) getNextScheduleTime() time.Time {
 	now := time.Now()
 	nxt := time.Date(now.Year(), now.Month(),
 		now.Day(), period.Hour(), period.Minute(),
-		period.Second(), period.Nanosecond(), time.UTC)
+		period.Second(), period.Nanosecond(), time.Local)
 	if nxt.UTC().Compare(now) <= 0 {
 		nxt = nxt.AddDate(0, 0, 1)
 	}
@@ -118,12 +118,6 @@ func (ms *MailServer) getNextScheduleTime() time.Time {
 
 func waitUntil(d time.Time) {
 	t := time.NewTimer(time.Until(d))
-	defer func() {
-		if !t.Stop() {
-			<-t.C
-		}
-	}()
-
 	<-t.C
 }
 
