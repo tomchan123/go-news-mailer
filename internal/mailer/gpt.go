@@ -47,7 +47,7 @@ func (gpts *GPTServer) getChatSummariseApi(url string, txt string) (string, erro
 		"messages": []map[string]interface{}{
 			{
 				"role":    "system",
-				"content": `Summarise the following news article you are provided with for a normal adult using no more than 80 words`,
+				"content": `Summarise the following news article you are provided with for a normal adult using no more than 60 words`,
 			},
 			{
 				"role":    "user",

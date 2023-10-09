@@ -3,6 +3,7 @@ package mailer
 import (
 	"embed"
 	"fmt"
+	ht "html/template"
 	"os"
 	tt "text/template"
 	"time"
@@ -48,19 +49,21 @@ func SendBulkNews(s []*db.Subscription) (int, error) {
 }
 
 func (ms *MailServer) SendNews(s *db.Subscription) error {
-	nas, err := ms.newsServer.FetchRecentArticles(3, period)
-	if err != nil {
-		return fmt.Errorf("mailer.SendNews > failed to fetch news: %v", err)
-	}
+	// nas, err := ms.newsServer.FetchRecentArticles(3, period)
+	// if err != nil {
+	// 	return fmt.Errorf("mailer.SendNews > failed to fetch news: %v", err)
+	// }
 
 	// dummy
-	// nas := []*NewsAritcle{
-	// 	{
-	// 		AISummary:   "testing",
-	// 		Title:       "title",
-	// 		PublishedAt: time.Now(),
-	// 	},
-	// }
+	nas := []*NewsAritcle{
+		{
+			AISummary:   "Lorem ipsum dolor sit amet consectetur adipisicing elit. Suscipit libero magnam nulla accusamus, animi accusantium. Illo vel minus corporis totam. Ipsum nostrum cupiditate dicta reprehenderit assumenda, saepe amet non iure!",
+			Title:       "The Greatest Title Ever",
+			Url:         "https://google.com",
+			PublishedAt: time.Now(),
+			ImgUrl:      "https://imagizer.imageshack.com/img540/6610/a60fa8.jpg",
+		},
+	}
 	m, err := genNewsEmail(s, nas)
 	if err != nil {
 		return fmt.Errorf("mailer.SendNews > failed to get email msg: %v", err)
@@ -83,14 +86,14 @@ func (ms *MailServer) SendNews(s *db.Subscription) error {
 }
 
 func genNewsEmail(s *db.Subscription, news []*NewsAritcle) (*mail.Msg, error) {
-	ttmpl, err := tt.New("text_template").Parse(newsTextTemplate)
+	_, err := tt.New("text_template").Parse(newsTextTemplate)
 	if err != nil {
 		return nil, fmt.Errorf("mailer.getNewsEmailMsg > failed to set text template: %v", err)
 	}
-	// htmpl, err := ht.New("html_template").Parse(newsHtmlTemplate)
-	// if err != nil {
-	// 	return nil, fmt.Errorf("mailer.getNewsEmailMsg > failed to set html template: %v", err)
-	// }
+	htmpl, err := ht.New("html_template").Parse(newsHtmlTemplate)
+	if err != nil {
+		return nil, fmt.Errorf("mailer.getNewsEmailMsg > failed to set html template: %v", err)
+	}
 
 	m := mail.NewMsg()
 	m.SetMessageID()
@@ -114,12 +117,12 @@ func genNewsEmail(s *db.Subscription, news []*NewsAritcle) (*mail.Msg, error) {
 	if err := m.EmbedFromEmbedFS("assets/logo.png", &logo); err != nil {
 		return nil, fmt.Errorf("mailer.getNewsEmailMsg > failed to embed logo file: %v", err)
 	}
-	// if err := m.SetBodyHTMLTemplate(htmpl, v); err != nil {
-	// 	return nil, fmt.Errorf("mailer.getNewsEmailMsg > failed to set html template: %v", err)
-	// }
-	if err := m.AddAlternativeTextTemplate(ttmpl, v); err != nil {
-		return nil, fmt.Errorf("mailer.getNewsEmailMsg > failed to set text template: %v", err)
+	if err := m.SetBodyHTMLTemplate(htmpl, v); err != nil {
+		return nil, fmt.Errorf("mailer.getNewsEmailMsg > failed to set html template: %v", err)
 	}
+	// if err := m.AddAlternativeTextTemplate(ttmpl, v); err != nil {
+	// 	return nil, fmt.Errorf("mailer.getNewsEmailMsg > failed to set text template: %v", err)
+	// }
 
 	return m, nil
 }
