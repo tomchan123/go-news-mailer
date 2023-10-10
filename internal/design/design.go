@@ -14,7 +14,7 @@ var _ = API("news", func() {
 	})
 
 	Server("newsSvr", func() {
-		Services("subscription")
+		Services("subscription", "email")
 
 		Host("development", func() { URI("http://localhost:8888") })
 	})
@@ -113,4 +113,37 @@ var _ = Service("subscription", func() {
 	// 		Response(StatusOK)
 	// 	})
 	// })
+})
+
+var _ = Service("email", func() {
+	Description("The email service allow sending of news email through API")
+
+	HTTP(func() {
+		Path("/email")
+		Response("ServerError", StatusInternalServerError)
+	})
+
+	Error("ServerError", func() {
+		Description("Error returned when there is an internal server error")
+	})
+	Error("SubscriptionFieldMissing", func() {
+		Description("Error returned when the subscription has missing field(s)")
+	})
+
+	Method("sendOneEmail", func() {
+		Description("Send an email to the target subscription")
+
+		Payload(TSubscription, "Subscription to send an email to", func() {
+			Required("email")
+		})
+
+		Result(Empty)
+
+		HTTP(func() {
+			POST("")
+
+			Response(StatusOK)
+			Response("SubscriptionFieldMissing", StatusBadRequest)
+		})
+	})
 })

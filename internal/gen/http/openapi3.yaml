@@ -6,6 +6,39 @@ info:
 servers:
     - url: http://localhost:8888
 paths:
+    /api/email:
+        post:
+            tags:
+                - email
+            summary: sendOneEmail email
+            description: Send an email to the target subscription
+            operationId: email#sendOneEmail
+            requestBody:
+                required: true
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/CreateOneRequestBody'
+                        example:
+                            createdAt: "2012-04-23T18:25:43.511Z"
+                            email: user@email.com
+                            name: John Doe
+                            uid: abcd1234
+            responses:
+                "200":
+                    description: OK response.
+                "400":
+                    description: 'SubscriptionFieldMissing: Error returned when the subscription has missing field(s)'
+                    content:
+                        application/vnd.goa.error:
+                            schema:
+                                $ref: '#/components/schemas/Error'
+                "500":
+                    description: 'ServerError: Error returned when there is an internal server error'
+                    content:
+                        application/vnd.goa.error:
+                            schema:
+                                $ref: '#/components/schemas/Error'
     /api/subscriptions:
         get:
             tags:
@@ -36,19 +69,7 @@ paths:
                                       email: user@email.com
                                       name: John Doe
                                       uid: abcd1234
-                                    - createdAt: "2012-04-23T18:25:43.511Z"
-                                      email: user@email.com
-                                      name: John Doe
-                                      uid: abcd1234
                             example:
-                                - createdAt: "2012-04-23T18:25:43.511Z"
-                                  email: user@email.com
-                                  name: John Doe
-                                  uid: abcd1234
-                                - createdAt: "2012-04-23T18:25:43.511Z"
-                                  email: user@email.com
-                                  name: John Doe
-                                  uid: abcd1234
                                 - createdAt: "2012-04-23T18:25:43.511Z"
                                   email: user@email.com
                                   name: John Doe
@@ -237,7 +258,7 @@ components:
                 timeout:
                     type: boolean
                     description: Is the error a timeout?
-                    example: true
+                    example: false
             description: Error returned when there is an internal server error
             example:
                 fault: true
@@ -281,3 +302,5 @@ components:
 tags:
     - name: subscription
       description: The subscription service provides ways to manage news subscription
+    - name: email
+      description: The email service allow sending of news email through API

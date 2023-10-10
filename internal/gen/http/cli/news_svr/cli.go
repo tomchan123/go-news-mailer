@@ -14,6 +14,7 @@ import (
 	"net/http"
 	"os"
 
+	emailc "github.com/tomchan123/go-news-mailer/internal/gen/http/email/client"
 	subscriptionc "github.com/tomchan123/go-news-mailer/internal/gen/http/subscription/client"
 	goahttp "goa.design/goa/v3/http"
 	goa "goa.design/goa/v3/pkg"
@@ -24,12 +25,19 @@ import (
 //	command (subcommand1|subcommand2|...)
 func UsageCommands() string {
 	return `subscription (get-all|get-one-by-uid|delete-one-by-uid|create-one)
+email send-one-email
 `
 }
 
 // UsageExamples produces an example of a valid invocation of the CLI tool.
 func UsageExamples() string {
 	return os.Args[0] + ` subscription get-all` + "\n" +
+		os.Args[0] + ` email send-one-email --body '{
+      "createdAt": "2012-04-23T18:25:43.511Z",
+      "email": "user@email.com",
+      "name": "John Doe",
+      "uid": "abcd1234"
+   }'` + "\n" +
 		""
 }
 
@@ -55,12 +63,20 @@ func ParseEndpoint(
 
 		subscriptionCreateOneFlags    = flag.NewFlagSet("create-one", flag.ExitOnError)
 		subscriptionCreateOneBodyFlag = subscriptionCreateOneFlags.String("body", "REQUIRED", "")
+
+		emailFlags = flag.NewFlagSet("email", flag.ContinueOnError)
+
+		emailSendOneEmailFlags    = flag.NewFlagSet("send-one-email", flag.ExitOnError)
+		emailSendOneEmailBodyFlag = emailSendOneEmailFlags.String("body", "REQUIRED", "")
 	)
 	subscriptionFlags.Usage = subscriptionUsage
 	subscriptionGetAllFlags.Usage = subscriptionGetAllUsage
 	subscriptionGetOneByUIDFlags.Usage = subscriptionGetOneByUIDUsage
 	subscriptionDeleteOneByUIDFlags.Usage = subscriptionDeleteOneByUIDUsage
 	subscriptionCreateOneFlags.Usage = subscriptionCreateOneUsage
+
+	emailFlags.Usage = emailUsage
+	emailSendOneEmailFlags.Usage = emailSendOneEmailUsage
 
 	if err := flag.CommandLine.Parse(os.Args[1:]); err != nil {
 		return nil, nil, err
@@ -79,6 +95,8 @@ func ParseEndpoint(
 		switch svcn {
 		case "subscription":
 			svcf = subscriptionFlags
+		case "email":
+			svcf = emailFlags
 		default:
 			return nil, nil, fmt.Errorf("unknown service %q", svcn)
 		}
@@ -107,6 +125,13 @@ func ParseEndpoint(
 
 			case "create-one":
 				epf = subscriptionCreateOneFlags
+
+			}
+
+		case "email":
+			switch epn {
+			case "send-one-email":
+				epf = emailSendOneEmailFlags
 
 			}
 
@@ -145,6 +170,13 @@ func ParseEndpoint(
 			case "create-one":
 				endpoint = c.CreateOne()
 				data, err = subscriptionc.BuildCreateOnePayload(*subscriptionCreateOneBodyFlag)
+			}
+		case "email":
+			c := emailc.NewClient(scheme, host, doer, enc, dec, restore)
+			switch epn {
+			case "send-one-email":
+				endpoint = c.SendOneEmail()
+				data, err = emailc.BuildSendOneEmailPayload(*emailSendOneEmailBodyFlag)
 			}
 		}
 	}
@@ -212,6 +244,35 @@ Create a new subscription
 
 Example:
     %[1]s subscription create-one --body '{
+      "createdAt": "2012-04-23T18:25:43.511Z",
+      "email": "user@email.com",
+      "name": "John Doe",
+      "uid": "abcd1234"
+   }'
+`, os.Args[0])
+}
+
+// emailUsage displays the usage of the email command and its subcommands.
+func emailUsage() {
+	fmt.Fprintf(os.Stderr, `The email service allow sending of news email through API
+Usage:
+    %[1]s [globalflags] email COMMAND [flags]
+
+COMMAND:
+    send-one-email: Send an email to the target subscription
+
+Additional help:
+    %[1]s email COMMAND --help
+`, os.Args[0])
+}
+func emailSendOneEmailUsage() {
+	fmt.Fprintf(os.Stderr, `%[1]s [flags] email send-one-email -body JSON
+
+Send an email to the target subscription
+    -body JSON: 
+
+Example:
+    %[1]s email send-one-email --body '{
       "createdAt": "2012-04-23T18:25:43.511Z",
       "email": "user@email.com",
       "name": "John Doe",
