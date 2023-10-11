@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"io"
 	"net/http"
+	"os"
 	"time"
 
 	"github.com/tomchan123/go-news-mailer/internal/db"
@@ -17,7 +18,7 @@ type NewsServer struct {
 
 func CreateNewsServer() *NewsServer {
 	return &NewsServer{
-		"pub_30538d32bff31cca76612ea8c3dca77f9c323",
+		os.Getenv("NEWS_API_KEY"),
 		"https://newsdata.io/api/1",
 	}
 }

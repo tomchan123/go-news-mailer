@@ -33,7 +33,7 @@ const (
 	timeFullFormat = "2006/01/02 15:04:05"
 )
 
-var period = time.Date(0, 0, 0, 23, 42, 0, 0, time.UTC)
+var period = time.Date(0, 0, 0, 23, 42, 0, 0, time.Local)
 
 //go:embed assets/logo.png
 var logo embed.FS
@@ -106,11 +106,11 @@ func (ms *MailServer) Start() {
 }
 
 func (ms *MailServer) getNextScheduleTime() time.Time {
-	now := time.Now()
+	now := time.Now().Local()
 	nxt := time.Date(now.Year(), now.Month(),
 		now.Day(), period.Hour(), period.Minute(),
 		period.Second(), period.Nanosecond(), time.Local)
-	if nxt.UTC().Compare(now) <= 0 {
+	if nxt.Compare(now) <= 0 {
 		nxt = nxt.AddDate(0, 0, 1)
 	}
 	return nxt
@@ -155,21 +155,21 @@ func (ms *MailServer) SendBulkNews(ss []*db.Subscription, nas []*db.NewsAritcle)
 }
 
 func (ms *MailServer) SendNews(s *db.Subscription) error {
-	// nas, err := ms.newsServer.FetchRecentArticles(3, period)
-	// if err != nil {
-	// 	return fmt.Errorf("mailer.SendNews > failed to fetch news: %v", err)
-	// }
+	nas, err := ms.newsServer.FetchRecentArticles(3, fetchPeriod)
+	if err != nil {
+		return fmt.Errorf("mailer.SendNews > failed to fetch news: %v", err)
+	}
 
 	// dummy
-	nas := []*db.NewsAritcle{
-		{
-			AISummary:   "Lorem ipsum dolor sit amet consectetur adipisicing elit. Suscipit libero magnam nulla accusamus, animi accusantium. Illo vel minus corporis totam. Ipsum nostrum cupiditate dicta reprehenderit assumenda, saepe amet non iure!",
-			Title:       "The Greatest Title Ever",
-			Url:         "https://google.com",
-			PublishedAt: time.Now(),
-			ImgUrl:      "https://imagizer.imageshack.com/img540/6610/a60fa8.jpg",
-		},
-	}
+	// nas := []*db.NewsAritcle{
+	// 	{
+	// 		AISummary:   "Lorem ipsum dolor sit amet consectetur adipisicing elit. Suscipit libero magnam nulla accusamus, animi accusantium. Illo vel minus corporis totam. Ipsum nostrum cupiditate dicta reprehenderit assumenda, saepe amet non iure!",
+	// 		Title:       "The Greatest Title Ever",
+	// 		Url:         "https://google.com",
+	// 		PublishedAt: time.Now(),
+	// 		ImgUrl:      "https://imagizer.imageshack.com/img540/6610/a60fa8.jpg",
+	// 	},
+	// }
 	m, err := genNewsEmail(s, nas)
 	if err != nil {
 		return fmt.Errorf("mailer.SendNews > failed to get email msg: %v", err)
