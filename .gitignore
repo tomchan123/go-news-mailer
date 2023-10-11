@@ -23,3 +23,6 @@ go.work
 secrets/**
 
 scripts/logins.env
+
+scripts/run-mongodb-container.txt
+scripts/run-mailer-container.txt
