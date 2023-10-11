@@ -45,7 +45,7 @@ func main() {
 	)
 	{
 		dbx = &db.Mongodb{}
-		d, err := dbx.ConnectDB("mongodb://localhost:27017")
+		d, err := dbx.ConnectDB("mongodb://" + os.Getenv("MONGO_HOST") + ":27017")
 		if err != nil {
 			log.Fatal(err)
 		}
@@ -109,7 +109,7 @@ func main() {
 	switch *hostF {
 	case "development":
 		{
-			addr := "http://localhost:8888"
+			addr := "http://0.0.0.0:8888"
 			u, err := url.Parse(addr)
 			if err != nil {
 				logger.Fatalf("invalid URL %#v: %s\n", addr, err)
